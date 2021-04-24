@@ -50,7 +50,6 @@ public:
 		GL::Renderer::disable(GL::Renderer::Feature::ScissorTest);
 		GL::Renderer::disable(GL::Renderer::Feature::Blending);
 
-		GL::Renderer::setClearColor(0xa5c9ea_rgbf);
 		GL::Renderer::setBlendEquation(GL::Renderer::BlendEquation::Add, GL::Renderer::BlendEquation::Add);
 		GL::Renderer::setBlendFunction(GL::Renderer::BlendFunction::SourceAlpha,
 		                               GL::Renderer::BlendFunction::OneMinusSourceAlpha);
@@ -73,7 +72,7 @@ public:
 		_cam.emplace<CameraComponent>(f32mat4::perspectiveProjection(
 				90.0_degf,
 				f32vec2{framebufferSize()}.aspectRatio(),
-				0.1f, 500.f
+				0.1f, 50.f
 		));
 
 		_camParent.emplace<TransformComponent>(_reg).transform = f32dquat::translation({0.f, 5.f, 5.f});
@@ -123,8 +122,12 @@ private:
 	void drawEvent() override
 	{
 		updateCamera();
+		renderScreens();
 
-		GL::defaultFramebuffer.clear(GL::FramebufferClear::Color | GL::FramebufferClear::Depth);
+		GL::defaultFramebuffer
+				.clearColor(0xa5c9ea_rgbf)
+				.clearDepthStencil(1.f, 0)
+				.bind();
 		_ctx.newFrame();
 		if (!_camControl) _ctx.updateApplicationCursor(*this);
 
@@ -243,6 +246,38 @@ private:
 		}
 	}
 
+	void renderScreens()
+	{
+		GL::Renderer::disable(GL::Renderer::Feature::DepthTest);
+		GL::Renderer::enable(GL::Renderer::Feature::Blending);
+		GL::Renderer::enable(GL::Renderer::Feature::ScissorTest);
+		GL::Renderer::disable(GL::Renderer::Feature::FaceCulling);
+
+		_reg.view<TransformComponent, MeshComponent, ScreenComponent>().each(
+				[this](auto entity, auto& transform, auto& mesh, auto& screen)
+				{
+
+					screen.context.processCamera(transform.world_transform(),
+					                             _cam.get<TransformComponent>().world_transform(), _camControl);
+					screen.context.newFrame();
+					ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+					ImGui::SetNextWindowSize(ImVec2{screen.context.size()}, ImGuiCond_Always);
+					ImGui::Begin(screen.title.c_str(), nullptr,
+					             ImGuiWindowFlags_NoResize |
+					             ImGuiWindowFlags_NoCollapse |
+					             ImGuiWindowFlags_NoMove |
+					             ImGuiWindowFlags_NoSavedSettings);
+					screen.fn(entt::const_handle{_reg, entity});
+					ImGui::End();
+					screen.context.drawFrame();
+				});
+
+		GL::Renderer::enable(GL::Renderer::Feature::FaceCulling);
+		GL::Renderer::disable(GL::Renderer::Feature::ScissorTest);
+		GL::Renderer::disable(GL::Renderer::Feature::Blending);
+		GL::Renderer::enable(GL::Renderer::Feature::DepthTest);
+	}
+
 	void renderEntities()
 	{
 		_phong.setProjectionMatrix(_cam.get<CameraComponent>().proj *
@@ -261,30 +296,6 @@ private:
 		_reg.view<TransformComponent, MeshComponent, ScreenComponent>().each(
 				[this](auto entity, auto& transform, auto& mesh, auto& screen)
 				{
-					GL::Renderer::disable(GL::Renderer::Feature::DepthTest);
-					GL::Renderer::enable(GL::Renderer::Feature::Blending);
-					GL::Renderer::enable(GL::Renderer::Feature::ScissorTest);
-					GL::Renderer::disable(GL::Renderer::Feature::FaceCulling);
-
-					screen.context.processCamera(transform.world_transform(),
-					                             _cam.get<TransformComponent>().world_transform(), _camControl);
-					screen.context.newFrame();
-					ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-					ImGui::SetNextWindowSize(ImVec2{screen.context.size()}, ImGuiCond_Always);
-					ImGui::Begin(screen.title.c_str(), nullptr,
-					             ImGuiWindowFlags_NoResize |
-					             ImGuiWindowFlags_NoCollapse |
-					             ImGuiWindowFlags_NoMove |
-					             ImGuiWindowFlags_NoSavedSettings);
-					screen.fn(entt::const_handle{_reg, entity});
-					ImGui::End();
-					screen.context.drawFrame();
-
-					GL::Renderer::enable(GL::Renderer::Feature::FaceCulling);
-					GL::Renderer::disable(GL::Renderer::Feature::ScissorTest);
-					GL::Renderer::disable(GL::Renderer::Feature::Blending);
-					GL::Renderer::enable(GL::Renderer::Feature::DepthTest);
-
 					_flat3d.setTransformationProjectionMatrix(
 									_cam.get<CameraComponent>().proj *
 									_cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid() *

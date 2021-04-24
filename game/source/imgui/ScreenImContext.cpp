@@ -76,7 +76,6 @@ void ScreenImContext::drawFrame()
 	GL::Renderer::disable(GL::Renderer::Feature::ScissorTest);
 	GL::Renderer::disable(GL::Renderer::Feature::Blending);
 	GL::Renderer::enable(GL::Renderer::Feature::DepthTest);
-	GL::defaultFramebuffer.bind();
 }
 
 void ScreenImContext::processCamera(f32dquat transform, f32dquat cam, bool is_control)
