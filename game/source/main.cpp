@@ -89,7 +89,9 @@ public:
 						[this](entt::const_handle entity)
 						{
 							ImGui::Text("Hello World!");
-							ImGui::ToggleButton("Toggle Me!", &_testToggle);
+							ImGui::Text("Toggle Me!");
+							ImGui::SameLine();
+							ImGui::ToggleButton("ToggleTest", &_testToggle);
 							if (_testToggle)
 								ImGui::Text("ACTIVE!");
 							else
