@@ -255,10 +255,11 @@ private:
 		GL::Renderer::enable(GL::Renderer::Feature::ScissorTest);
 		GL::Renderer::disable(GL::Renderer::Feature::FaceCulling);
 
-		_reg.view<TransformComponent, MeshComponent, ScreenComponent>().each(
-				[this](auto entity, auto& transform, auto& mesh, auto& screen)
+		_reg.view<TransformComponent, ScreenComponent>().each(
+				[this](entt::entity entity,
+				       TransformComponent& transform,
+				       ScreenComponent& screen)
 				{
-
 					screen.context.processCamera(transform.world_transform(),
 					                             _cam.get<TransformComponent>().world_transform(), _camControl);
 					screen.context.newFrame();
@@ -286,7 +287,10 @@ private:
 		                           _cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid());
 
 		_reg.view<TransformComponent, MeshComponent, PhongMaterialComponent>().each(
-				[this](auto entity, auto& transform, auto& mesh, auto& material)
+				[this](entt::entity entity,
+				       TransformComponent& transform,
+				       MeshComponent& mesh,
+				       PhongMaterialComponent& material)
 				{
 					_phong.setTransformationMatrix(transform.world_transform().toMatrix())
 							.setNormalMatrix(transform.transform.toMatrix().normalMatrix())
@@ -296,7 +300,10 @@ private:
 				});
 
 		_reg.view<TransformComponent, MeshComponent, ScreenComponent>().each(
-				[this](auto entity, auto& transform, auto& mesh, auto& screen)
+				[this](entt::entity entity,
+				       TransformComponent& transform,
+				       MeshComponent& mesh,
+				       ScreenComponent& screen)
 				{
 					_flat3d.setTransformationProjectionMatrix(
 									_cam.get<CameraComponent>().proj *
