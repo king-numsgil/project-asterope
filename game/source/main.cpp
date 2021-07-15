@@ -205,8 +205,8 @@ private:
 	{
 		if (_camControl)
 		{
-			_camPitch -= f32deg{event.relativePosition().y() * _time.previousFrameDuration() * 3.f};
-			_camYaw -= f32deg{event.relativePosition().x() * _time.previousFrameDuration() * 3.f};
+			_camPitch -= f32deg{static_cast<f32>(event.relativePosition().y()) * _time.previousFrameDuration() * 3.f};
+			_camYaw -= f32deg{static_cast<f32>(event.relativePosition().x()) * _time.previousFrameDuration() * 3.f};
 
 			if (_camPitch >= 90.0_degf)
 				_camPitch = 90.0_degf;
