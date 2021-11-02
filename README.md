@@ -1,2 +1,2 @@
 # Project Callisto
-Top-down colony management game inspired by Rimworld in C++ using Magnum!
+C++ OpenGL/Magnum experiment in 3D! Maybe going to evolve to a space sim...
