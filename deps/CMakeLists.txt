@@ -1,8 +1,8 @@
 CPMAddPackage(
 	NAME GLFW
 	GITHUB_REPOSITORY glfw/glfw
-	GIT_TAG 3.3.4
-	VERSION 3.3.4
+	GIT_TAG 3.3.5
+	VERSION 3.3.5
 	OPTIONS
 		"BUILD_SHARED_LIBS On"
 		"GLFW_BUILD_EXAMPLES Off"
@@ -13,8 +13,8 @@ CPMAddPackage(
 CPMAddPackage(
 	NAME Json
 	VERSION 3.9.1
-	URL https://github.com/nlohmann/json/releases/download/v3.9.1/include.zip
-	URL_HASH SHA256=6bea5877b1541d353bd77bdfbdb2696333ae5ed8f9e8cc22df657192218cad91
+	URL https://github.com/nlohmann/json/releases/download/v3.10.4/include.zip
+	URL_HASH SHA256=62c585468054e2d8e7c2759c0d990fd339d13be988577699366fe195162d16cb
 )
 
 if(Json_ADDED)
@@ -24,7 +24,7 @@ endif()
 
 CPMAddPackage(
 	NAME EnTT
-	VERSION 3.8.0
+	VERSION 3.8.1
 	GITHUB_REPOSITORY skypjack/entt
 )
 
