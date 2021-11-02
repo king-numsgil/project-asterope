@@ -1,10 +1,5 @@
 string(TOUPPER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME_UPPER)
 
-set(X64 OFF)
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(X64 ON)
-endif()
-
 set(DEFAULT_PROJECT_OPTIONS
 	DEBUG_POSTFIX             "-d"
     CXX_STANDARD              20
