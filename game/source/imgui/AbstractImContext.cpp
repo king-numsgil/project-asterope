@@ -237,7 +237,7 @@ void AbstractImContext::drawFrame()
 
 	ImGuiIO& io = ImGui::GetIO();
 	const f32vec2 fbSize = f32vec2{io.DisplaySize} * f32vec2{io.DisplayFramebufferScale};
-	if (!fbSize.product()) return;
+	if (fbSize.product() == 0) return;
 
 	ImDrawData* drawData = ImGui::GetDrawData();
 	CORRADE_INTERNAL_ASSERT(drawData);
@@ -268,7 +268,7 @@ void AbstractImContext::drawFrame()
 					{pcmd->ClipRect.z, fbSize.y() - pcmd->ClipRect.y}}
 					                                   .scaled(_supersamplingRatio)});
 
-			_mesh.setCount(pcmd->ElemCount);
+			_mesh.setCount(static_cast<i32>(pcmd->ElemCount));
 			_mesh.setIndexBuffer(_indexBuffer, indexBufferOffset * sizeof(ImDrawIdx),
 			                     sizeof(ImDrawIdx) == 2
 			                     ? GL::MeshIndexType::UnsignedShort
@@ -276,8 +276,7 @@ void AbstractImContext::drawFrame()
 
 			indexBufferOffset += pcmd->ElemCount;
 
-			_shader.bindTexture(*static_cast<GL::Texture2D*>(pcmd->TextureId))
-					.draw(_mesh);
+			_shader.bindTexture(*static_cast<GL::Texture2D*>(pcmd->TextureId)).draw(_mesh);
 		}
 	}
 
