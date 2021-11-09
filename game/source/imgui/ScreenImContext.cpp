@@ -10,19 +10,19 @@
 
 using namespace Magnum;
 
-ScreenImContext::ScreenImContext(const f32vec2& size, const i32vec2& windowSize, const i32vec2& framebufferSize)
+ScreenImContext::ScreenImContext(f32vec2 const& size, i32vec2 const& windowSize, i32vec2 const& framebufferSize)
 		: AbstractImContext(size, windowSize, framebufferSize)
 { create_resources(i32vec2{size}); }
 
-ScreenImContext::ScreenImContext(const i32vec2& size) : AbstractImContext(size)
+ScreenImContext::ScreenImContext(i32vec2 const& size) : AbstractImContext(size)
 { create_resources(size); }
 
-ScreenImContext::ScreenImContext(ImGuiContext& context, ImPlotContext& plotCtx, const f32vec2& size,
-                                 const i32vec2& windowSize, const i32vec2& framebufferSize)
+ScreenImContext::ScreenImContext(ImGuiContext& context, ImPlotContext& plotCtx, f32vec2 const& size,
+                                 i32vec2 const& windowSize, i32vec2 const& framebufferSize)
 		: AbstractImContext(context, plotCtx, size, windowSize, framebufferSize)
 { create_resources(i32vec2{size}); }
 
-ScreenImContext::ScreenImContext(ImGuiContext& context, ImPlotContext& plotCtx, const i32vec2& size)
+ScreenImContext::ScreenImContext(ImGuiContext& context, ImPlotContext& plotCtx, i32vec2 const& size)
 		: AbstractImContext(context, plotCtx, size)
 { create_resources(size); }
 
@@ -44,7 +44,7 @@ ScreenImContext& ScreenImContext::operator=(ScreenImContext&& other) noexcept
 	return *this;
 }
 
-void ScreenImContext::create_resources(const i32vec2& size)
+void ScreenImContext::create_resources(i32vec2 const& size)
 {
 	_depth = GL::Renderbuffer{};
 	_depth.setStorage(GL::RenderbufferFormat::Depth24Stencil8, size);
