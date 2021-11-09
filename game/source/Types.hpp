@@ -9,6 +9,7 @@
 #include <vector>
 #include <array>
 #include <span>
+#include <bit>
 
 using std::function;
 using std::string;
@@ -21,6 +22,8 @@ using std::span;
 
 using std::reference_wrapper;
 using std::ref;
+
+using std::bit_cast;
 
 using std::optional;
 using std::nullopt;

@@ -268,7 +268,7 @@ void AbstractImContext::drawFrame()
 					{pcmd->ClipRect.z, fbSize.y() - pcmd->ClipRect.y}}
 					                                   .scaled(_supersamplingRatio)});
 
-			_mesh.setCount(static_cast<i32>(pcmd->ElemCount));
+			_mesh.setCount(bit_cast<i32>(pcmd->ElemCount));
 			_mesh.setIndexBuffer(_indexBuffer, indexBufferOffset * sizeof(ImDrawIdx),
 			                     sizeof(ImDrawIdx) == 2
 			                     ? GL::MeshIndexType::UnsignedShort
