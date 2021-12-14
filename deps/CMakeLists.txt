@@ -1,8 +1,8 @@
 CPMAddPackage(
 	NAME GLFW
 	GITHUB_REPOSITORY glfw/glfw
-	GIT_TAG 3.3.5
-	VERSION 3.3.5
+	GIT_TAG 3.3.6
+	VERSION 3.3.6
 	OPTIONS
 		"BUILD_SHARED_LIBS On"
 		"GLFW_BUILD_EXAMPLES Off"
@@ -12,7 +12,7 @@ CPMAddPackage(
 
 CPMAddPackage(
 	NAME Json
-	VERSION 3.9.1
+	VERSION 3.10.4
 	URL https://github.com/nlohmann/json/releases/download/v3.10.4/include.zip
 	URL_HASH SHA256=62c585468054e2d8e7c2759c0d990fd339d13be988577699366fe195162d16cb
 )
