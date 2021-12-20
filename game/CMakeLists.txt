@@ -6,15 +6,15 @@ add_executable(AsteropeGame
 	${ASTEROPE_SHADERS_RCS}
 
 	source/main.cpp
-	source/ImContext.cpp
-	source/ImContext.hpp
-	source/Components.hpp
 	source/imgui/AbstractImContext.cpp
 	source/imgui/AbstractImContext.hpp
 	source/imgui/AppImContext.cpp
 	source/imgui/AppImContext.hpp
 	source/imgui/ScreenImContext.cpp
 	source/imgui/ScreenImContext.hpp
+	source/scene/Components.hpp
+	source/scene/Scene.cpp
+	source/scene/Scene.hpp
 )
 
 set_target_properties(AsteropeGame

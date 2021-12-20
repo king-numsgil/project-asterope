@@ -16,7 +16,7 @@
 
 #include "imgui/ScreenImContext.hpp"
 #include "imgui/AppImContext.hpp"
-#include "Components.hpp"
+#include "scene/Scene.hpp"
 
 using namespace Magnum;
 
@@ -31,7 +31,7 @@ public:
 				       .setSize({1280, 768}),
 		       GLConfiguration{}
 				       .setSrgbCapable(true)
-				       .setSampleCount(2)
+				       .setSampleCount(4)
 #ifndef NDEBUG
 				       .addFlags(GLConfiguration::Flag::Debug)
 #endif
@@ -50,6 +50,7 @@ public:
 		GL::Renderer::disable(GL::Renderer::Feature::ScissorTest);
 		GL::Renderer::disable(GL::Renderer::Feature::Blending);
 
+		GL::Renderer::setDepthFunction(GL::Renderer::DepthFunction::Less);
 		GL::Renderer::setBlendEquation(GL::Renderer::BlendEquation::Add, GL::Renderer::BlendEquation::Add);
 		GL::Renderer::setBlendFunction(GL::Renderer::BlendFunction::SourceAlpha,
 		                               GL::Renderer::BlendFunction::OneMinusSourceAlpha);
@@ -57,28 +58,29 @@ public:
 		_ctx = AppImContext{windowSize()};
 		_time.start();
 
-		_camParent = entt::handle{_reg, _reg.create()};
-		_plane = entt::handle{_reg, _reg.create()};
-		_cube = entt::handle{_reg, _reg.create()};
-		_cam = entt::handle{_reg, _reg.create()};
+		_scene.create(framebufferSize());
+		_camParent = _scene.createEntity();
+		_plane = _scene.createEntity();
+		_cube = _scene.createEntity();
+		_cam = _scene.createEntity();
 
-		_cube.emplace<TransformComponent>(_reg);
+		_cube.emplace<TransformComponent>(_scene.registry());
 		_cube.emplace<MeshComponent>(
 				[](GL::Mesh* mesh)
 				{ *mesh = MeshTools::compile(Primitives::cubeSolid()); });
 		_cube.emplace<PhongMaterialComponent>(f32col3::fromHsv({35.0_degf, 1.0f, 1.0f}));
 
-		_cam.emplace<TransformComponent>(_reg);
-		_cam.emplace<CameraComponent>(f32mat4::perspectiveProjection(
-				90.0_degf,
+		_cam.emplace<TransformComponent>(_scene.registry());
+		_cam.emplace<CameraComponent>(Scene::createReverseProjectionMatrix(
+				60.0_degf,
 				f32vec2{framebufferSize()}.aspectRatio(),
-				0.1f, 50.f
+				0.1f
 		));
 
-		_camParent.emplace<TransformComponent>(_reg).transform = f32dquat::translation({0.f, 5.f, 5.f});
+		_camParent.emplace<TransformComponent>(_scene.registry()).transform = f32dquat::translation({0.f, 5.f, 5.f});
 		_cam.get<TransformComponent>().parent = _camParent;
 
-		_plane.emplace<TransformComponent>(_reg)
+		_plane.emplace<TransformComponent>(_scene.registry())
 				.set_parent(_camParent)
 				.apply_transform(f32dquat::translation(f32vec3::zAxis(-2.f)));
 		_plane.emplace<MeshComponent>(
@@ -99,12 +101,9 @@ public:
 						}
 				);
 
-		_phong = Shaders::Phong{Shaders::Phong::Flag::ObjectId, 1};
-		_phong.setLightColor(0, 0xffffff_rgbf)
+		_scene.phongShader().setLightColor(0, 0xffffff_rgbf)
 				.setLightPosition(0, {0.f, 1.5f, 1.7f})
 				.setAmbientColor(0x101010_rgbf);
-
-		_flat3d = Shaders::Flat3D{Shaders::Flat3D::Flag::Textured};
 	}
 
 	virtual ~AsteropeGame() = default;
@@ -112,10 +111,8 @@ public:
 private:
 	AppImContext _ctx{NoCreate};
 	Timeline _time{};
-	Shaders::Phong _phong{NoCreate};
-	Shaders::Flat3D _flat3d{NoCreate};
 
-	entt::registry _reg{};
+	Scene _scene{NoCreate};
 	entt::handle _cam, _camParent, _cube, _plane;
 
 	f32deg _camPitch{-45.f}, _camYaw{0.f};
@@ -124,17 +121,19 @@ private:
 	void drawEvent() override
 	{
 		updateCamera();
-		renderScreens();
+		_scene.render(_cam, _camControl);
 
 		GL::defaultFramebuffer
 				.clearColor(0xa5c9ea_rgbf)
 				.clearDepthStencil(1.f, 0)
 				.bind();
-		_ctx.newFrame();
+		_scene.blitToDefaultFramebuffer();
 		if (!_camControl) _ctx.updateApplicationCursor(*this);
 
+		_ctx.newFrame();
+
 		ImGui::ShowMetricsWindow();
-		renderEntities();
+
 		renderMainImgui();
 
 		swapBuffers();
@@ -175,7 +174,7 @@ private:
 	{
 		if (_camControl)
 		{
-			_reg.view<ScreenComponent>().each(
+			_scene.registry().view<ScreenComponent>().each(
 					[&event](auto entity, auto& screen)
 					{
 						screen.context.onMouseButton(event.button(), false);
@@ -190,7 +189,7 @@ private:
 	{
 		if (_camControl)
 		{
-			_reg.view<ScreenComponent>().each(
+			_scene.registry().view<ScreenComponent>().each(
 					[&event](auto entity, auto& screen)
 					{
 						screen.context.onMouseButton(event.button(), true);
@@ -246,73 +245,6 @@ private:
 			if (glfwGetKey(window(), GLFW_KEY_A) == GLFW_PRESS)
 				cam.apply_transform(f32dquat::translation(-m.right() * rate));
 		}
-	}
-
-	void renderScreens()
-	{
-		GL::Renderer::disable(GL::Renderer::Feature::DepthTest);
-		GL::Renderer::enable(GL::Renderer::Feature::Blending);
-		GL::Renderer::enable(GL::Renderer::Feature::ScissorTest);
-		GL::Renderer::disable(GL::Renderer::Feature::FaceCulling);
-
-		_reg.view<TransformComponent, ScreenComponent>().each(
-				[this](entt::entity entity,
-				       TransformComponent& transform,
-				       ScreenComponent& screen)
-				{
-					screen.context.processCamera(transform.world_transform(),
-					                             _cam.get<TransformComponent>().world_transform(), _camControl);
-					screen.context.newFrame();
-					ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-					ImGui::SetNextWindowSize(ImVec2{screen.context.size()}, ImGuiCond_Always);
-					ImGui::Begin(screen.title.c_str(), nullptr,
-					             ImGuiWindowFlags_NoResize |
-					             ImGuiWindowFlags_NoCollapse |
-					             ImGuiWindowFlags_NoMove |
-					             ImGuiWindowFlags_NoSavedSettings);
-					screen.fn(entt::const_handle{_reg, entity});
-					ImGui::End();
-					screen.context.drawFrame();
-				});
-
-		GL::Renderer::enable(GL::Renderer::Feature::FaceCulling);
-		GL::Renderer::disable(GL::Renderer::Feature::ScissorTest);
-		GL::Renderer::disable(GL::Renderer::Feature::Blending);
-		GL::Renderer::enable(GL::Renderer::Feature::DepthTest);
-	}
-
-	void renderEntities()
-	{
-		_phong.setProjectionMatrix(_cam.get<CameraComponent>().proj *
-		                           _cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid());
-
-		_reg.view<TransformComponent, MeshComponent, PhongMaterialComponent>().each(
-				[this](entt::entity entity,
-				       TransformComponent& transform,
-				       MeshComponent& mesh,
-				       PhongMaterialComponent& material)
-				{
-					_phong.setTransformationMatrix(transform.world_transform().toMatrix())
-							.setNormalMatrix(transform.transform.toMatrix().normalMatrix())
-							.setDiffuseColor(material.diffuse)
-							.setObjectId(entt::to_integral(entity))
-							.draw(mesh.mesh);
-				});
-
-		_reg.view<TransformComponent, MeshComponent, ScreenComponent>().each(
-				[this](entt::entity entity,
-				       TransformComponent& transform,
-				       MeshComponent& mesh,
-				       ScreenComponent& screen)
-				{
-					_flat3d.setTransformationProjectionMatrix(
-									_cam.get<CameraComponent>().proj *
-									_cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid() *
-									transform.world_transform().toMatrix()
-							)
-							.bindTexture(screen.context.color())
-							.draw(mesh.mesh);
-				});
 	}
 
 	void renderMainImgui()
