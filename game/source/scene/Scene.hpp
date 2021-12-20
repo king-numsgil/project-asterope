@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Magnum/GL/MultisampleTexture.h>
 #include <Magnum/GL/Framebuffer.h>
 #include <Magnum/Shaders/Phong.h>
 #include <Magnum/Shaders/Flat.h>
+#include <Magnum/GL/Texture.h>
 
 #include <entt/entity/registry.hpp>
 
@@ -13,8 +13,8 @@
 class Scene
 {
 	Magnum::GL::Framebuffer _fbo{NoCreate};
-	Magnum::GL::MultisampleTexture2D _color{NoCreate};
-	Magnum::GL::MultisampleTexture2D _depth{NoCreate};
+	Magnum::GL::Texture2D _color{NoCreate};
+	Magnum::GL::Texture2D _depth{NoCreate};
 	Magnum::Shaders::Phong _phong{NoCreate};
 	Magnum::Shaders::Flat3D _flat{NoCreate};
 

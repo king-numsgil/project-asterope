@@ -40,15 +40,15 @@ void Scene::create(i32vec2 const& size)
 	_phong = Shaders::Phong{Shaders::Phong::Flag::ObjectId, 1};
 	_flat = Shaders::Flat3D{Shaders::Flat3D::Flag::Textured | Shaders::Flat3D ::Flag::AlphaMask};
 
-	_color = GL::MultisampleTexture2D{};
-	_color.setStorage(4, GL::TextureFormat::RGBA8, size);
+	_color = GL::Texture2D{};
+	_color.setStorage(1, GL::TextureFormat::RGBA8, size);
 
-	_depth = GL::MultisampleTexture2D{};
-	_depth.setStorage(4, GL::TextureFormat::DepthComponent32F, size);
+	_depth = GL::Texture2D{};
+	_depth.setStorage(1, GL::TextureFormat::DepthComponent32F, size);
 
 	_fbo = GL::Framebuffer{i32range2{{{}, size}}};
-	_fbo.attachTexture(GL::Framebuffer::ColorAttachment{0}, _color)
-			.attachTexture(GL::Framebuffer::BufferAttachment::Depth, _depth)
+	_fbo.attachTexture(GL::Framebuffer::ColorAttachment{0}, _color, 0)
+			.attachTexture(GL::Framebuffer::BufferAttachment::Depth, _depth, 0)
 			.mapForDraw({{Shaders::Phong::ColorOutput, GL::Framebuffer::ColorAttachment{0}}});
 	CORRADE_INTERNAL_ASSERT(_fbo.checkStatus(GL::FramebufferTarget::Draw) == GL::Framebuffer::Status::Complete);
 }
