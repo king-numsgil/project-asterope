@@ -132,6 +132,12 @@ private:
 
 		_ctx.newFrame();
 
+		ImGui::Begin("Depth Buffer");
+		ImGui::Image(reinterpret_cast<ImTextureID>(&_scene.depthTarget()),
+		             {(f32) framebufferSize().x() / 4.f, (f32) framebufferSize().y() / 4.f},
+		             {1.f, 1.f}, {0.f, 0.f});
+		ImGui::End();
+
 		ImGui::ShowMetricsWindow();
 
 		renderMainImgui();
