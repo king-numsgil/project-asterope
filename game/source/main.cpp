@@ -1,5 +1,8 @@
 #include <Magnum/Platform/GlfwApplication.h>
 #include <Magnum/GL/DefaultFramebuffer.h>
+#include <Magnum/Primitives/UVSphere.h>
+#include <Magnum/MeshTools/Transform.h>
+#include <Magnum/MeshTools/Reference.h>
 #include <Magnum/MeshTools/Compile.h>
 #include <Magnum/Primitives/Plane.h>
 #include <Magnum/Primitives/Cube.h>
@@ -104,6 +107,37 @@ public:
 		_scene.phongShader().setLightColor(0, 0xffffff_rgbf)
 				.setLightPosition(0, {0.f, 1.5f, 1.7f})
 				.setAmbientColor(0x101010_rgbf);
+
+		const f32 earthRadius = 6'378'000.f, moonRadius = 1'737'500.f;
+
+		auto earth = _scene.createEntity();
+		earth.emplace<PhongMaterialComponent>(0x275f91_rgbf);
+		earth.emplace<TransformComponent>(_scene.registry())
+				.apply_transform(f32dquat::translation(f32vec3::yAxis(-earthRadius - 1.f)));
+		earth.emplace<MeshComponent>(
+				[earthRadius](GL::Mesh* mesh)
+				{
+					auto data = MeshTools::owned(Primitives::uvSphereSolid(30, 30));
+					MeshTools::transformPointsInPlace(f32mat4::scaling({earthRadius, earthRadius, earthRadius}),
+					                                  data.mutableAttribute<f32vec3>(Trade::MeshAttribute::Position));
+					*mesh = MeshTools::compile(data);
+				}
+		);
+
+		auto moon = _scene.createEntity();
+		moon.emplace<PhongMaterialComponent>(0xe6ea98_rgbf);
+		moon.emplace<TransformComponent>(_scene.registry())
+				.set_parent(earth)
+				.apply_transform(f32dquat::translation(f32vec3::yAxis(384'400'000.f)));
+		moon.emplace<MeshComponent>(
+				[moonRadius](GL::Mesh* mesh)
+				{
+					auto data = MeshTools::owned(Primitives::uvSphereSolid(30, 30));
+					MeshTools::transformPointsInPlace(f32mat4::scaling({moonRadius, moonRadius, moonRadius}),
+					                                  data.mutableAttribute<f32vec3>(Trade::MeshAttribute::Position));
+					*mesh = MeshTools::compile(data);
+				}
+		);
 	}
 
 	virtual ~AsteropeGame() = default;
