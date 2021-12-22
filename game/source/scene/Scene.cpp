@@ -139,3 +139,10 @@ void Scene::renderEntities(const_handle cam)
 			});
 	GL::Renderer::disable(GL::Renderer::Feature::Blending);
 }
+
+entt::handle Scene::createEntity()
+{
+	auto ret = entt::handle{_reg, _reg.create()};
+	ret.emplace<TransformComponent>(_reg);
+	return ret;
+}

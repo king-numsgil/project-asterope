@@ -60,8 +60,7 @@ public:
 	auto& depthTarget()
 	{ return _depth; }
 
-	entt::handle createEntity()
-	{ return entt::handle{_reg, _reg.create()}; }
+	entt::handle createEntity();
 
 private:
 	void renderScreens(entt::const_handle cam, bool isCamControl);

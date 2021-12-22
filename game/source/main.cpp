@@ -67,23 +67,21 @@ public:
 		_cube = _scene.createEntity();
 		_cam = _scene.createEntity();
 
-		_cube.emplace<TransformComponent>(_scene.registry());
 		_cube.emplace<MeshComponent>(
 				[](GL::Mesh* mesh)
 				{ *mesh = MeshTools::compile(Primitives::cubeSolid()); });
 		_cube.emplace<PhongMaterialComponent>(f32col3::fromHsv({35.0_degf, 1.0f, 1.0f}));
 
-		_cam.emplace<TransformComponent>(_scene.registry());
 		_cam.emplace<CameraComponent>(Scene::createReverseProjectionMatrix(
 				60.0_degf,
 				f32vec2{framebufferSize()}.aspectRatio(),
 				0.1f
 		));
 
-		_camParent.emplace<TransformComponent>(_scene.registry()).transform = f32dquat::translation({0.f, 5.f, 5.f});
+		_camParent.get<TransformComponent>().transform = f32dquat::translation({0.f, 5.f, 5.f});
 		_cam.get<TransformComponent>().parent = _camParent;
 
-		_plane.emplace<TransformComponent>(_scene.registry())
+		_plane.get<TransformComponent>()
 				.set_parent(_camParent)
 				.apply_transform(f32dquat::translation(f32vec3::zAxis(-2.f)));
 		_plane.emplace<MeshComponent>(
@@ -112,7 +110,7 @@ public:
 
 		auto earth = _scene.createEntity();
 		earth.emplace<PhongMaterialComponent>(0x275f91_rgbf);
-		earth.emplace<TransformComponent>(_scene.registry())
+		earth.get<TransformComponent>()
 				.apply_transform(f32dquat::translation(f32vec3::yAxis(-earthRadius - 1.f)));
 		earth.emplace<MeshComponent>(
 				[earthRadius](GL::Mesh* mesh)
@@ -126,7 +124,7 @@ public:
 
 		auto moon = _scene.createEntity();
 		moon.emplace<PhongMaterialComponent>(0xe6ea98_rgbf);
-		moon.emplace<TransformComponent>(_scene.registry())
+		moon.get<TransformComponent>()
 				.set_parent(earth)
 				.apply_transform(f32dquat::translation(f32vec3::yAxis(384'400'000.f)));
 		moon.emplace<MeshComponent>(
