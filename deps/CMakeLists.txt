@@ -24,7 +24,7 @@ endif()
 
 CPMAddPackage(
 	NAME EnTT
-	VERSION 3.8.1
+	VERSION 3.9.0
 	GITHUB_REPOSITORY skypjack/entt
 )
 
