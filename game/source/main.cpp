@@ -9,8 +9,6 @@
 #include <Magnum/Trade/MeshData.h>
 #include <Magnum/GL/DebugOutput.h>
 #include <Magnum/GL/PixelFormat.h>
-#include <Magnum/Shaders/Phong.h>
-#include <Magnum/Shaders/Flat.h>
 #include <Magnum/GL/Renderer.h>
 #include <Magnum/Timeline.h>
 #include <Magnum/Image.h>
