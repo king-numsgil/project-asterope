@@ -8,12 +8,8 @@
 #include <Magnum/Primitives/Cube.h>
 #include <Magnum/Trade/MeshData.h>
 #include <Magnum/GL/DebugOutput.h>
-#include <Magnum/GL/PixelFormat.h>
 #include <Magnum/GL/Renderer.h>
 #include <Magnum/Timeline.h>
-#include <Magnum/Image.h>
-
-#include <entt/entity/registry.hpp>
 
 #include "imgui/ScreenImContext.hpp"
 #include "imgui/AppImContext.hpp"
