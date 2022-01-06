@@ -31,14 +31,14 @@ ScreenImContext::ScreenImContext(Magnum::NoCreateT) noexcept
 {}
 
 ScreenImContext::ScreenImContext(ScreenImContext&& other) noexcept
-		: AbstractImContext{std::move(other)}, _fb{std::move(other._fb)}, _depth{std::move(other._depth)},
+		: AbstractImContext{std::move(other)}, _fb{std::move(other._fb)}, _stencil{std::move(other._stencil)},
 		  _color{std::move(other._color)}
 {}
 
 ScreenImContext& ScreenImContext::operator=(ScreenImContext&& other) noexcept
 {
 	std::swap(_fb, other._fb);
-	std::swap(_depth, other._depth);
+	std::swap(_stencil, other._stencil);
 	std::swap(_color, other._color);
 	AbstractImContext::operator=(std::move(other));
 	return *this;
@@ -46,15 +46,15 @@ ScreenImContext& ScreenImContext::operator=(ScreenImContext&& other) noexcept
 
 void ScreenImContext::create_resources(i32vec2 const& size)
 {
-	_depth = GL::Renderbuffer{};
-	_depth.setStorage(GL::RenderbufferFormat::Depth24Stencil8, size);
+	_stencil = GL::Renderbuffer{};
+	_stencil.setStorage(GL::RenderbufferFormat::StencilIndex8, size);
 
 	_color = GL::Texture2D{};
 	_color.setStorage(1, GL::TextureFormat::RGBA8, size);
 
 	_fb = GL::Framebuffer{{{}, size}};
 	_fb.attachTexture(GL::Framebuffer::ColorAttachment{0}, _color, 0)
-			.attachRenderbuffer(GL::Framebuffer::BufferAttachment::DepthStencil, _depth)
+			.attachRenderbuffer(GL::Framebuffer::BufferAttachment::Stencil, _stencil)
 			.mapForDraw({{Shaders::Flat2D::ColorOutput, GL::Framebuffer::ColorAttachment{0}}});
 	CORRADE_INTERNAL_ASSERT(_fb.checkStatus(GL::FramebufferTarget::Draw) == GL::Framebuffer::Status::Complete);
 }
@@ -62,7 +62,7 @@ void ScreenImContext::create_resources(i32vec2 const& size)
 void ScreenImContext::drawFrame()
 {
 	_fb.clearColor(0, f32col4{0.f, 0.f, 0.f, 0.f})
-			.clearDepthStencil(1.f, 0)
+			.clearStencil(0)
 			.bind();
 
 	GL::Renderer::disable(GL::Renderer::Feature::DepthTest);

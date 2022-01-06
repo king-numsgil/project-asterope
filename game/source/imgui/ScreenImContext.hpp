@@ -39,7 +39,7 @@ protected:
 	void create_resources(i32vec2 const& size);
 
 	Magnum::GL::Framebuffer _fb{NoCreate};
-	Magnum::GL::Renderbuffer _depth{NoCreate};
+	Magnum::GL::Renderbuffer _stencil{NoCreate};
 	Magnum::GL::Texture2D _color{NoCreate};
 };
 
