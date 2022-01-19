@@ -39,16 +39,19 @@ struct CameraComponent
 {
 	f32mat4 proj;
 
-	explicit CameraComponent(Magnum::Math::IdentityInitT) : proj{IdentityInit} {}
+	explicit CameraComponent(Magnum::Math::IdentityInitT) : proj{IdentityInit}
+	{}
 
-	explicit CameraComponent(f32mat4 const& m) : proj{m} {}
+	explicit CameraComponent(f32mat4 const& m) : proj{m}
+	{}
 };
 
 struct MeshComponent
 {
 	Magnum::GL::Mesh mesh;
 
-	explicit MeshComponent(Magnum::NoCreateT) : mesh{NoCreate} {}
+	explicit MeshComponent(Magnum::NoCreateT) : mesh{NoCreate}
+	{}
 
 	explicit MeshComponent(function<void(Magnum::GL::Mesh*)> const& buildFn)
 	{
@@ -61,5 +64,6 @@ struct PhongMaterialComponent
 {
 	f32col3 diffuse;
 
-	explicit PhongMaterialComponent(f32col3 Diffuse = {1.f, 1.f, 1.f}) : diffuse{Diffuse} {}
+	explicit PhongMaterialComponent(f32col3 Diffuse = {1.f, 1.f, 1.f}) : diffuse{Diffuse}
+	{}
 };

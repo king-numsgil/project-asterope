@@ -33,7 +33,7 @@ void Scene::create(i32vec2 const& size)
 
 	_size = size;
 	_phong = Shaders::Phong{Shaders::Phong::Flag::ObjectId, 1};
-	_flat = Shaders::Flat3D{Shaders::Flat3D::Flag::Textured | Shaders::Flat3D ::Flag::AlphaMask};
+	_flat = Shaders::Flat3D{Shaders::Flat3D::Flag::Textured | Shaders::Flat3D::Flag::AlphaMask};
 
 	_color = GL::Texture2D{};
 	_color.setStorage(1, GL::TextureFormat::RGBA8, size);

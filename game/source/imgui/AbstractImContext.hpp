@@ -117,8 +117,9 @@ protected:
 
 	explicit AbstractImContext(i32vec2 const& size);
 
-	explicit AbstractImContext(ImGuiContext& context, ImPlotContext& plotCtx, f32vec2 const& size, i32vec2 const& windowSize,
-			i32vec2 const& framebufferSize);
+	explicit AbstractImContext(ImGuiContext& context, ImPlotContext& plotCtx, f32vec2 const& size,
+	                           i32vec2 const& windowSize,
+	                           i32vec2 const& framebufferSize);
 
 	explicit AbstractImContext(ImGuiContext& context, ImPlotContext& plotCtx, i32vec2 const& size);
 
