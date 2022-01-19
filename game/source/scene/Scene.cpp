@@ -12,7 +12,7 @@ using namespace entt;
 
 f32mat4 Scene::createReverseProjectionMatrix(f32rad fov, f32 aspectRation, f32 near)
 {
-	f32 f = 1.f / tanf((float) fov / 2.f);
+	f32 f = 1.f / Math::tan(fov / 2.f);
 
 	return f32mat4{
 			{f / aspectRation, 0.f, 0.f,  0.f},
