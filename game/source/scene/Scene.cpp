@@ -27,11 +27,6 @@ Scene::Scene(i32vec2 const& size)
 	create(size);
 }
 
-Scene::~Scene()
-{
-
-}
-
 void Scene::create(i32vec2 const& size)
 {
 	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);

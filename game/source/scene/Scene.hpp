@@ -29,7 +29,7 @@ public:
 	explicit Scene(NoCreateT) noexcept
 	{}
 
-	~Scene();
+	~Scene() = default;
 
 	Scene(Scene const&) = delete;
 
