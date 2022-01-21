@@ -7,6 +7,8 @@
 #include "../imgui/ScreenImContext.hpp"
 #include "Scene.hpp"
 
+#include "./shaders/PhysicalShader.hpp"
+
 using namespace Magnum;
 using namespace entt;
 
@@ -30,6 +32,8 @@ Scene::Scene(i32vec2 const& size)
 void Scene::create(i32vec2 const& size)
 {
 	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
+
+	auto test = PhysicalShader{1};
 
 	_size = size;
 	_phong = Shaders::Phong{Shaders::Phong::Flag::ObjectId, 1};

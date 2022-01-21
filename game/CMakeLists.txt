@@ -15,6 +15,8 @@ add_executable(AsteropeGame
 	source/scene/Components.hpp
 	source/scene/Scene.cpp
 	source/scene/Scene.hpp
+	source/scene/shaders/PhysicalShader.cpp
+	source/scene/shaders/PhysicalShader.hpp
 )
 
 set_target_properties(AsteropeGame

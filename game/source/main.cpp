@@ -186,7 +186,7 @@ private:
 				return;
 			}
 
-			if (event.key() == KeyEvent::Key::Space)
+			if (event.key() == KeyEvent::Key::LeftAlt)
 			{
 				if (_camControl)
 				{
@@ -265,7 +265,7 @@ private:
 			f32mat4 m = _cam.get<TransformComponent>().world_transform().toMatrix();
 			auto& cam = _camParent.get<TransformComponent>();
 			float rate = _time.previousFrameDuration() *
-			             (glfwGetKey(window(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ? 4.f : 2.f);
+			             (glfwGetKey(window(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ? 2000.f : 2.f);
 
 			if (glfwGetKey(window(), GLFW_KEY_W) == GLFW_PRESS)
 				cam.apply_transform(f32dquat::translation(-m.backward() * rate));
@@ -276,6 +276,11 @@ private:
 				cam.apply_transform(f32dquat::translation(m.right() * rate));
 			if (glfwGetKey(window(), GLFW_KEY_A) == GLFW_PRESS)
 				cam.apply_transform(f32dquat::translation(-m.right() * rate));
+
+			if (glfwGetKey(window(), GLFW_KEY_SPACE) == GLFW_PRESS)
+				cam.apply_transform(f32dquat::translation(f32vec3::yAxis(rate)));
+			if (glfwGetKey(window(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+				cam.apply_transform(f32dquat::translation(f32vec3::yAxis(-rate)));
 		}
 	}
 
