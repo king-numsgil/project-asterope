@@ -53,6 +53,9 @@ public:
 	auto& phongShader()
 	{ return _phong; }
 
+	auto& physicalShader()
+	{ return _pbr; }
+
 	auto& framebuffer()
 	{ return _fbo; }
 

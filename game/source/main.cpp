@@ -64,7 +64,8 @@ public:
 		_cube.emplace<MeshComponent>(
 				[](GL::Mesh* mesh)
 				{ *mesh = MeshTools::compile(Primitives::cubeSolid()); });
-		_cube.emplace<PhongMaterialComponent>(f32col3::fromHsv({35.0_degf, 1.0f, 1.0f}));
+		_cube.emplace<PhysicalMaterialComponent>("assets/textures/rusted_metal")
+				.loadTextures();
 
 		_cam.emplace<CameraComponent>(Scene::createReverseProjectionMatrix(
 				60.0_degf,
@@ -99,6 +100,8 @@ public:
 		_scene.phongShader().setLightColor(0, 0xffffff_rgbf)
 				.setLightPosition(0, {0.f, 1.5f, 1.7f})
 				.setAmbientColor(0x101010_rgbf);
+
+		_scene.physicalShader().setLightParameters(0, {0.f, 1.5f, 1.7f}, {150.f, 150.f, 150.f});
 
 		const f32 earthRadius = 6'378'000.f, moonRadius = 1'737'500.f;
 
