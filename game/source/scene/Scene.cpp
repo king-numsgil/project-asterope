@@ -1,6 +1,11 @@
+#include <Corrade/PluginManager/PluginManager.h>
+#include <Magnum/Trade/AbstractImporter.h>
 #include <Magnum/GL/DefaultFramebuffer.h>
 #include <Magnum/GL/TextureFormat.h>
+#include <Magnum/Trade/ImageData.h>
 #include <Magnum/GL/Renderer.h>
+#include <Magnum/ImageView.h>
+#include <filesystem>
 
 #include <MagnumExternal/OpenGL/GL/flextGL.h>
 
@@ -9,6 +14,45 @@
 
 using namespace Magnum;
 using namespace entt;
+
+static GL::Texture2D
+loadTexture(std::filesystem::path const& filename, Containers::Pointer<Trade::AbstractImporter>& importer)
+{
+	if (!importer->openFile(filename.string()))
+	{
+		Fatal{} << "Could not load texture" << filename.string();
+		std::exit(1);
+	}
+
+	GL::Texture2D ret{};
+	Containers::Optional<Trade::ImageData2D> image = importer->image2D(0);
+	CORRADE_INTERNAL_ASSERT(image);
+
+	ret.setWrapping(GL::SamplerWrapping::ClampToEdge)
+			.setMagnificationFilter(GL::SamplerFilter::Linear)
+			.setMinificationFilter(GL::SamplerFilter::Linear)
+			.setStorage(1, GL::textureFormat(image->format()), image->size())
+			.setSubImage(0, {}, *image);
+	return ret;
+}
+
+void PhysicalMaterialComponent::loadTextures()
+{
+	Corrade::PluginManager::Manager<Trade::AbstractImporter> manager;
+	Containers::Pointer<Trade::AbstractImporter> importer = manager.loadAndInstantiate("StbImageImporter");
+	if (!importer)
+	{
+		Fatal{} << "Could not load plugin StbImageImporter";
+		std::exit(1);
+	}
+
+	std::filesystem::path textures{path};
+	albedo = loadTexture(textures / "albedo.png", importer);
+	ambientOcclusion = loadTexture(textures / "ao.png", importer);
+	metallic = loadTexture(textures / "metallic.png", importer);
+	normal = loadTexture(textures / "normal.png", importer);
+	roughness = loadTexture(textures / "rougness.png", importer);
+}
 
 f32mat4 Scene::createReverseProjectionMatrix(f32rad fov, f32 aspectRation, f32 near)
 {

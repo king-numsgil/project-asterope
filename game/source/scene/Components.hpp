@@ -67,3 +67,18 @@ struct PhongMaterialComponent
 	explicit PhongMaterialComponent(f32col3 Diffuse = {1.f, 1.f, 1.f}) : diffuse{Diffuse}
 	{}
 };
+
+struct PhysicalMaterialComponent
+{
+	Magnum::GL::Texture2D albedo{NoCreate};
+	Magnum::GL::Texture2D ambientOcclusion{NoCreate};
+	Magnum::GL::Texture2D metallic{NoCreate};
+	Magnum::GL::Texture2D normal{NoCreate};
+	Magnum::GL::Texture2D roughness{NoCreate};
+	string path;
+
+	explicit PhysicalMaterialComponent(string const& texturesPath) : path{texturesPath}
+	{}
+
+	void loadTextures();
+};
