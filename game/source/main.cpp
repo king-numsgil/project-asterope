@@ -63,7 +63,7 @@ public:
 
 		_cube.emplace<MeshComponent>(
 				[](GL::Mesh* mesh)
-				{ *mesh = MeshTools::compile(Primitives::cubeSolid()); });
+				{ *mesh = MeshTools::compile(Primitives::uvSphereSolid(20, 20, Primitives::UVSphereFlag::TextureCoordinates)); });
 		_cube.emplace<PhysicalMaterialComponent>("assets/textures/rusted_metal")
 				.loadTextures();
 
@@ -98,10 +98,10 @@ public:
 				);
 
 		_scene.phongShader().setLightColor(0, 0xffffff_rgbf)
-				.setLightPosition(0, {0.f, 1.5f, 1.7f})
+				.setLightPosition(0, {0.f, 3.f, 3.4f})
 				.setAmbientColor(0x101010_rgbf);
 
-		_scene.physicalShader().setLightParameters(0, {0.f, 1.5f, 1.7f}, {150.f, 150.f, 150.f});
+		_scene.physicalShader().setLightParameters(0, {0.f, 3.f, 3.4f}, {150.f, 150.f, 150.f});
 
 		const f32 earthRadius = 6'378'000.f, moonRadius = 1'737'500.f;
 
