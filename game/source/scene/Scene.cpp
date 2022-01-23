@@ -149,6 +149,10 @@ void Scene::renderEntities(const_handle cam)
 	_phong.setProjectionMatrix(cam.get<CameraComponent>().proj *
 	                           cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid());
 
+	_pbr.setViewProjectionMatrix(cam.get<CameraComponent>().proj *
+	                             cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid())
+			.setCameraPosition(cam.get<TransformComponent>().world_transform().translation());
+
 	_reg.view<TransformComponent, MeshComponent, PhongMaterialComponent>().each(
 			[this](entt::entity entity,
 			       TransformComponent& transform,
@@ -159,6 +163,18 @@ void Scene::renderEntities(const_handle cam)
 						.setNormalMatrix(transform.transform.toMatrix().normalMatrix())
 						.setDiffuseColor(material.diffuse)
 						.setObjectId(entt::to_integral(entity))
+						.draw(mesh.mesh);
+			});
+
+	_reg.view<TransformComponent, MeshComponent, PhysicalMaterialComponent>().each(
+			[this](entt::entity entity,
+			       TransformComponent& transform,
+			       MeshComponent& mesh,
+			       PhysicalMaterialComponent& material)
+			{
+				_pbr.setModelMatrix(transform.world_transform().toMatrix())
+						.bindTextures(&material.albedo, &material.normal, &material.metallic, &material.roughness,
+						              &material.ambientOcclusion)
 						.draw(mesh.mesh);
 			});
 
