@@ -51,7 +51,7 @@ void PhysicalMaterialComponent::loadTextures()
 	ambientOcclusion = loadTexture(textures / "ao.png", importer);
 	metallic = loadTexture(textures / "metallic.png", importer);
 	normal = loadTexture(textures / "normal.png", importer);
-	roughness = loadTexture(textures / "rougness.png", importer);
+	roughness = loadTexture(textures / "roughness.png", importer);
 }
 
 f32mat4 Scene::createReverseProjectionMatrix(f32rad fov, f32 aspectRation, f32 near)
