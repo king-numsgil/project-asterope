@@ -1,6 +1,6 @@
-layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec3 aNormal;
-layout(location = 2) in vec2 aTexCoords;
+layout(location = POSITION_ATTRIBUTE_LOCATION) in vec3 aPos;
+layout(location = NORMAL_ATTRIBUTE_LOCATION) in vec3 aNormal;
+layout(location = TEXTURECOORDINATES_ATTRIBUTE_LOCATION) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 out vec3 WorldPos;

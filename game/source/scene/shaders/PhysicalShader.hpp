@@ -1,15 +1,16 @@
 #pragma once
 
 #include <Magnum/GL/AbstractShaderProgram.h>
+#include <Magnum/Shaders/Generic.h>
 
 #include "../../Types.hpp"
 
 class PhysicalShader : public Magnum::GL::AbstractShaderProgram
 {
 public:
-	using Position = Magnum::GL::Attribute<0, f32vec3>;
-	using Normal = Magnum::GL::Attribute<1, f32vec3>;
-	using TextureCoordinates = Magnum::GL::Attribute<2, f32vec2>;
+	using TextureCoordinates = Magnum::Shaders::Generic3D::TextureCoordinates;
+	using Position = Magnum::Shaders::Generic3D::Position;
+	using Normal = Magnum::Shaders::Generic3D::Normal;
 
 	explicit PhysicalShader(u32 lightCount = 1);
 

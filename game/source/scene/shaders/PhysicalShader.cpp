@@ -16,7 +16,8 @@ PhysicalShader::PhysicalShader(u32 lightCount)
 
 	GL::Shader vert{GL::Version::GL450, GL::Shader::Type::Vertex}, frag{GL::Version::GL450, GL::Shader::Type::Fragment};
 
-	vert.addSource(rs.get("pbr.vert.glsl"));
+	vert.addSource(rs.get("generic.glsl"))
+			.addSource(rs.get("pbr.vert.glsl"));
 	frag.addSource(Utility::formatString("#define LIGHT_COUNT {}\n", _lightCount))
 			.addSource(Utility::formatString("#define LIGHT_COLORS_LOCATION {}\n", _lightColorsLocation))
 			.addSource(rs.get("pbr.frag.glsl"));
@@ -57,11 +58,11 @@ PhysicalShader& PhysicalShader::setLightParameters(u32 index, const f32vec3& pos
 	return *this;
 }
 
-PhysicalShader& PhysicalShader::bindTextures(Magnum::GL::Texture2D* albedo,
-											 Magnum::GL::Texture2D* normal,
-                                             Magnum::GL::Texture2D* metallic,
-											 Magnum::GL::Texture2D* roughness,
-                                             Magnum::GL::Texture2D* ambientOcclusion)
+PhysicalShader& PhysicalShader::bindTextures(GL::Texture2D* albedo,
+                                             GL::Texture2D* normal,
+                                             GL::Texture2D* metallic,
+                                             GL::Texture2D* roughness,
+                                             GL::Texture2D* ambientOcclusion)
 {
 	GL::AbstractTexture::bind(0, {albedo, normal, metallic, roughness, ambientOcclusion});
 	return *this;
