@@ -1,6 +1,7 @@
 #include <Corrade/Containers/Reference.h>
 #include <Corrade/Utility/FormatStl.h>
 #include <Corrade/Utility/Resource.h>
+#include <Magnum/GL/Texture.h>
 #include <Magnum/GL/Version.h>
 #include <Magnum/GL/Shader.h>
 
@@ -23,4 +24,45 @@ PhysicalShader::PhysicalShader(u32 lightCount)
 	CORRADE_INTERNAL_ASSERT_OUTPUT(GL::Shader::compile({vert, frag}));
 
 	attachShaders({vert, frag});
+}
+
+PhysicalShader& PhysicalShader::setViewProjectionMatrix(const f32mat4& viewProj)
+{
+	setUniform(_viewProjMatrixLocation, viewProj);
+	return *this;
+}
+
+PhysicalShader& PhysicalShader::setModelMatrix(const f32mat4& model)
+{
+	setUniform(_modelMatrixLocation, model);
+	return *this;
+}
+
+PhysicalShader& PhysicalShader::setCameraPosition(const f32vec3& position)
+{
+	setUniform(_camPositionLocation, position);
+	return *this;
+}
+
+PhysicalShader& PhysicalShader::setLightParameters(u32 index, const f32vec3& position, f32col3 const& color)
+{
+	CORRADE_ASSERT(index < _lightCount, "PhysicalShader::setLightParameters(): light ID"
+			<< index
+			<< "is out of bounds for"
+			<< _lightCount
+			<< "lights", *this);
+
+	setUniform(_lightPositionsLocation + (i32) index, position);
+	setUniform(_lightColorsLocation + (i32) index, color);
+	return *this;
+}
+
+PhysicalShader& PhysicalShader::bindTextures(Magnum::GL::Texture2D* albedo,
+											 Magnum::GL::Texture2D* normal,
+                                             Magnum::GL::Texture2D* metallic,
+											 Magnum::GL::Texture2D* roughness,
+                                             Magnum::GL::Texture2D* ambientOcclusion)
+{
+	GL::AbstractTexture::bind(0, {albedo, normal, metallic, roughness, ambientOcclusion});
+	return *this;
 }

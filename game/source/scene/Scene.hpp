@@ -7,6 +7,7 @@
 
 #include <entt/entity/registry.hpp>
 
+#include "shaders/PhysicalShader.hpp"
 #include "Components.hpp"
 #include "../Types.hpp"
 
@@ -17,6 +18,7 @@ class Scene
 	Magnum::GL::Texture2D _depth{NoCreate};
 	Magnum::Shaders::Phong _phong{NoCreate};
 	Magnum::Shaders::Flat3D _flat{NoCreate};
+	PhysicalShader _pbr{NoCreate};
 
 	i32vec2 _size{0, 0};
 	entt::registry _reg{};

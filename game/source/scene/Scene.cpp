@@ -7,8 +7,6 @@
 #include "../imgui/ScreenImContext.hpp"
 #include "Scene.hpp"
 
-#include "./shaders/PhysicalShader.hpp"
-
 using namespace Magnum;
 using namespace entt;
 
@@ -33,11 +31,10 @@ void Scene::create(i32vec2 const& size)
 {
 	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
 
-	auto test = PhysicalShader{1};
-
 	_size = size;
 	_phong = Shaders::Phong{Shaders::Phong::Flag::ObjectId, 1};
 	_flat = Shaders::Flat3D{Shaders::Flat3D::Flag::Textured | Shaders::Flat3D::Flag::AlphaMask};
+	_pbr = PhysicalShader{1};
 
 	_color = GL::Texture2D{};
 	_color.setStorage(1, GL::TextureFormat::RGBA8, size);
