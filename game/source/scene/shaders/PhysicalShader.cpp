@@ -22,8 +22,8 @@ PhysicalShader::PhysicalShader(u32 lightCount)
 			.addSource(rs.get("pbr.frag.glsl"));
 
 	CORRADE_INTERNAL_ASSERT_OUTPUT(GL::Shader::compile({vert, frag}));
-
 	attachShaders({vert, frag});
+	CORRADE_INTERNAL_ASSERT_OUTPUT(link());
 }
 
 PhysicalShader& PhysicalShader::setViewProjectionMatrix(const f32mat4& viewProj)
