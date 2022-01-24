@@ -66,19 +66,19 @@ f32mat4 Scene::createReverseProjectionMatrix(f32rad fov, f32 aspectRation, f32 n
 	};
 }
 
-Scene::Scene(i32vec2 const& size)
+Scene::Scene(i32vec2 const& size, u32 lightCount)
 {
-	create(size);
+	create(size, lightCount);
 }
 
-void Scene::create(i32vec2 const& size)
+void Scene::create(i32vec2 const& size, u32 lightCount)
 {
 	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
 
 	_size = size;
 	_phong = Shaders::Phong{Shaders::Phong::Flag::ObjectId, 1};
 	_flat = Shaders::Flat3D{Shaders::Flat3D::Flag::Textured | Shaders::Flat3D::Flag::AlphaMask};
-	_pbr = PhysicalShader{1};
+	_pbr = PhysicalShader{lightCount};
 
 	_color = GL::Texture2D{};
 	_color.setStorage(1, GL::TextureFormat::RGBA8, size);

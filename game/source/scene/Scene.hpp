@@ -26,7 +26,7 @@ class Scene
 public:
 	static f32mat4 createReverseProjectionMatrix(f32rad fov, f32 aspectRation, f32 near);
 
-	explicit Scene(i32vec2 const& size);
+	explicit Scene(i32vec2 const& size, u32 lightCount = 1);
 
 	explicit Scene(NoCreateT) noexcept
 	{}
@@ -41,7 +41,7 @@ public:
 
 	Scene& operator=(Scene&&) noexcept = default;
 
-	void create(i32vec2 const& size);
+	void create(i32vec2 const& size, u32 lightCount = 1);
 
 	void blitToDefaultFramebuffer();
 

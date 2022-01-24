@@ -63,7 +63,7 @@ public:
 
 		_cube.emplace<MeshComponent>(
 				[](GL::Mesh* mesh)
-				{ *mesh = MeshTools::compile(Primitives::uvSphereSolid(20, 20, Primitives::UVSphereFlag::TextureCoordinates)); });
+				{ *mesh = MeshTools::compile(Primitives::uvSphereSolid(24, 24, Primitives::UVSphereFlag::TextureCoordinates)); });
 		_cube.emplace<PhysicalMaterialComponent>("assets/textures/rusted_metal")
 				.loadTextures();
 
