@@ -25,6 +25,8 @@ PhysicalShader::PhysicalShader(u32 lightCount)
 	CORRADE_INTERNAL_ASSERT_OUTPUT(GL::Shader::compile({vert, frag}));
 	attachShaders({vert, frag});
 	CORRADE_INTERNAL_ASSERT_OUTPUT(link());
+
+	setEmissivePower(0.f);
 }
 
 PhysicalShader& PhysicalShader::setViewProjectionMatrix(const f32mat4& viewProj)
@@ -45,6 +47,12 @@ PhysicalShader& PhysicalShader::setCameraPosition(const f32vec3& position)
 	return *this;
 }
 
+PhysicalShader& PhysicalShader::setEmissivePower(f32 power)
+{
+	setUniform(_emissivePowerLocation, power);
+	return *this;
+}
+
 PhysicalShader& PhysicalShader::setLightParameters(u32 index, const f32vec3& position, f32col3 const& color)
 {
 	CORRADE_ASSERT(index < _lightCount, "PhysicalShader::setLightParameters(): light ID"
@@ -62,8 +70,9 @@ PhysicalShader& PhysicalShader::bindTextures(GL::Texture2D* albedo,
                                              GL::Texture2D* normal,
                                              GL::Texture2D* metallic,
                                              GL::Texture2D* roughness,
-                                             GL::Texture2D* ambientOcclusion)
+                                             GL::Texture2D* ambientOcclusion,
+                                             GL::Texture2D* emissive)
 {
-	GL::AbstractTexture::bind(0, {albedo, normal, metallic, roughness, ambientOcclusion});
+	GL::AbstractTexture::bind(0, {albedo, normal, metallic, roughness, ambientOcclusion, emissive});
 	return *this;
 }

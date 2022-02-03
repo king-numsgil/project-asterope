@@ -36,19 +36,23 @@ public:
 
 	PhysicalShader& setCameraPosition(f32vec3 const& position);
 
+	PhysicalShader& setEmissivePower(f32 power);
+
 	PhysicalShader& setLightParameters(u32 index, f32vec3 const& position, f32col3 const& color);
 
 	PhysicalShader& bindTextures(Magnum::GL::Texture2D* albedo,
 	                             Magnum::GL::Texture2D* normal,
 	                             Magnum::GL::Texture2D* metallic,
 	                             Magnum::GL::Texture2D* roughness,
-	                             Magnum::GL::Texture2D* ambientOcclusion = nullptr);
+	                             Magnum::GL::Texture2D* ambientOcclusion = nullptr,
+	                             Magnum::GL::Texture2D* emissive = nullptr);
 
 private:
 	u32 _lightCount;
 	i32 _viewProjMatrixLocation{0},
 			_modelMatrixLocation{1},
 			_camPositionLocation{2},
+			_emissivePowerLocation{3},
 			_lightPositionsLocation{10},
 			_lightColorsLocation;
 };

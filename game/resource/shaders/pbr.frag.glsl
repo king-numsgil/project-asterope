@@ -9,8 +9,10 @@ layout(binding = 1) uniform sampler2D normalMap;
 layout(binding = 2) uniform sampler2D metallicMap;
 layout(binding = 3) uniform sampler2D roughnessMap;
 layout(binding = 4) uniform sampler2D aoMap;
+layout(binding = 5) uniform sampler2D emissiveMap;
 
 layout(location = 2) uniform vec3 camPos;
+layout(location = 3) uniform float emissivePower;
 
 // lights
 layout(location = 10) uniform vec3 lightPositions[LIGHT_COUNT];
@@ -135,8 +137,13 @@ void main()
 	// ambient lighting (note that the next IBL tutorial will replace
 	// this ambient lighting with environment lighting).
 	vec3 ambient = vec3(0.03) * albedo * ao;
+	vec3 emissive = vec3(0.0);
+	if (emissivePower > 0)
+	{
+		emissive = texture(emissiveMap, TexCoords).rgb * emissivePower;
+	}
 
-	vec3 color = ambient + Lo;
+	vec3 color = ambient + Lo + emissive;
 
 	// HDR tonemapping
 	color = color / (color + vec3(1.0));
