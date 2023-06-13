@@ -16,14 +16,15 @@ PhysicalShader::PhysicalShader(u32 lightCount)
 
 	GL::Shader vert{GL::Version::GL450, GL::Shader::Type::Vertex}, frag{GL::Version::GL450, GL::Shader::Type::Fragment};
 
-	vert.addSource(rs.get("generic.glsl"))
-			.addSource(rs.get("pbr.vert.glsl"));
-	frag.addSource(Utility::formatString("#define LIGHT_COUNT {}\n", _lightCount))
-			.addSource(Utility::formatString("#define LIGHT_COLORS_LOCATION {}\n", _lightColorsLocation))
-			.addSource(rs.get("pbr.frag.glsl"));
+	vert.addSource(rs.getString("generic.glsl"))
+	    .addSource(rs.getString("pbr.vert.glsl"));
+	frag.addSource(Utility::formatString("#define LIGHT_COUNT {}\n", _lightCount).c_str())
+	    .addSource(Utility::formatString("#define LIGHT_COLORS_LOCATION {}\n", _lightColorsLocation).c_str())
+	    .addSource(rs.getString("pbr.frag.glsl"));
 
-	CORRADE_INTERNAL_ASSERT_OUTPUT(GL::Shader::compile({vert, frag}));
-	attachShaders({vert, frag});
+	CORRADE_INTERNAL_ASSERT_OUTPUT(vert.compile() && frag.compile());
+	attachShader(vert);
+	attachShader(frag);
 	CORRADE_INTERNAL_ASSERT_OUTPUT(link());
 
 	setEmissivePower(0.f);

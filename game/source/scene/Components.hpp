@@ -1,6 +1,7 @@
 #pragma once
 
 #include <entt/entity/handle.hpp>
+#include <utility>
 #include <Magnum/GL/Texture.h>
 #include <Magnum/GL/Mesh.h>
 
@@ -17,9 +18,13 @@ struct TransformComponent
 	[[nodiscard]] f32dquat world_transform() const
 	{
 		if (parent)
+		{
 			return parent.get<TransformComponent>().transform * transform;
+		}
 		else
+		{
 			return transform;
+		}
 	}
 
 	TransformComponent& set_parent(entt::const_handle const& handle)
@@ -77,7 +82,7 @@ struct PhysicalMaterialComponent
 	Magnum::GL::Texture2D roughness{NoCreate};
 	string path;
 
-	explicit PhysicalMaterialComponent(string const& texturesPath) : path{texturesPath}
+	explicit PhysicalMaterialComponent(string texturesPath) : path{std::move(texturesPath)}
 	{}
 
 	void loadTextures();

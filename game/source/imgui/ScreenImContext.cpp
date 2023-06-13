@@ -54,16 +54,16 @@ void ScreenImContext::create_resources(i32vec2 const& size)
 
 	_fb = GL::Framebuffer{{{}, size}};
 	_fb.attachTexture(GL::Framebuffer::ColorAttachment{0}, _color, 0)
-			.attachRenderbuffer(GL::Framebuffer::BufferAttachment::Stencil, _stencil)
-			.mapForDraw({{Shaders::Flat2D::ColorOutput, GL::Framebuffer::ColorAttachment{0}}});
+	   .attachRenderbuffer(GL::Framebuffer::BufferAttachment::Stencil, _stencil)
+	   .mapForDraw({{Shaders::FlatGL2D::ColorOutput, GL::Framebuffer::ColorAttachment{0}}});
 	CORRADE_INTERNAL_ASSERT(_fb.checkStatus(GL::FramebufferTarget::Draw) == GL::Framebuffer::Status::Complete);
 }
 
 void ScreenImContext::drawFrame()
 {
 	_fb.clearColor(0, f32col4{0.f, 0.f, 0.f, 0.f})
-			.clearStencil(0)
-			.bind();
+	   .clearStencil(0)
+	   .bind();
 
 	GL::Renderer::disable(GL::Renderer::Feature::DepthTest);
 	GL::Renderer::enable(GL::Renderer::Feature::Blending);
@@ -104,12 +104,18 @@ void ScreenImContext::processCamera(f32dquat transform, f32dquat cam, bool is_co
 		io.MousePos = {uv.x(), uv.y()};
 		if (io.MousePos.x >= 0.f && io.MousePos.x <= _size.x() &&
 		    io.MousePos.y >= 0.f && io.MousePos.y <= _size.y())
+		{
 			io.MouseDrawCursor = true;
+		}
 		else
+		{
 			io.MouseDrawCursor = false;
+		}
 	}
 	else
+	{
 		io.MouseDrawCursor = false;
+	}
 }
 
 void ScreenImContext::onMouseButton(MouseButton button, bool pressed)

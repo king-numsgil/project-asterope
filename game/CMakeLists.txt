@@ -52,9 +52,9 @@ target_link_libraries(AsteropeGame
 )
 
 add_dependencies(AsteropeGame
-		MagnumPlugins::TinyGltfImporter
 		MagnumPlugins::StbImageImporter
 		MagnumPlugins::StbTrueTypeFont
+		MagnumPlugins::GltfImporter
 )
 
 target_compile_definitions(AsteropeGame

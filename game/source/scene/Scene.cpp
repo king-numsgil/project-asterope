@@ -7,18 +7,15 @@
 #include <Magnum/ImageView.h>
 #include <filesystem>
 
-#include <MagnumExternal/OpenGL/GL/flextGL.h>
-
 #include "../imgui/ScreenImContext.hpp"
 #include "Scene.hpp"
 
 using namespace Magnum;
 using namespace entt;
 
-static GL::Texture2D
-loadTexture(std::filesystem::path const& filename, Containers::Pointer<Trade::AbstractImporter>& importer)
+static GL::Texture2D loadTexture(std::filesystem::path const& filename, Containers::Pointer<Trade::AbstractImporter>& importer)
 {
-	if (!importer->openFile(filename.string()))
+	if (!importer->openFile(filename.string().c_str()))
 	{
 		Fatal{} << "Could not load texture" << filename.string();
 		std::exit(1);
@@ -29,10 +26,10 @@ loadTexture(std::filesystem::path const& filename, Containers::Pointer<Trade::Ab
 	CORRADE_INTERNAL_ASSERT(image);
 
 	ret.setWrapping(GL::SamplerWrapping::ClampToEdge)
-			.setMagnificationFilter(GL::SamplerFilter::Linear)
-			.setMinificationFilter(GL::SamplerFilter::Linear)
-			.setStorage(1, GL::textureFormat(image->format()), image->size())
-			.setSubImage(0, {}, *image);
+	   .setMagnificationFilter(GL::SamplerFilter::Linear)
+	   .setMinificationFilter(GL::SamplerFilter::Linear)
+	   .setStorage(1, GL::textureFormat(image->format()), image->size())
+	   .setSubImage(0, {}, *image);
 	return ret;
 }
 
@@ -73,11 +70,12 @@ Scene::Scene(i32vec2 const& size, u32 lightCount)
 
 void Scene::create(i32vec2 const& size, u32 lightCount)
 {
-	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
+	GL::Renderer::setClipControl(GL::Renderer::ClipOrigin::LowerLeft, GL::Renderer::ClipDepth::ZeroToOne);
 
 	_size = size;
-	_phong = Shaders::Phong{Shaders::Phong::Flag::ObjectId, 1};
-	_flat = Shaders::Flat3D{Shaders::Flat3D::Flag::Textured | Shaders::Flat3D::Flag::AlphaMask};
+	_phong = Shaders::PhongGL{Shaders::PhongGL::Configuration{}.setFlags(Shaders::PhongGL::Flag::ObjectId)};
+	_flat = Shaders::FlatGL3D{
+			Shaders::FlatGL3D::Configuration{}.setFlags(Shaders::FlatGL3D::Flag::Textured | Shaders::FlatGL3D::Flag::AlphaMask)};
 	_pbr = PhysicalShader{lightCount};
 
 	_color = GL::Texture2D{};
@@ -88,8 +86,8 @@ void Scene::create(i32vec2 const& size, u32 lightCount)
 
 	_fbo = GL::Framebuffer{i32range2{{{}, size}}};
 	_fbo.attachTexture(GL::Framebuffer::ColorAttachment{0}, _color, 0)
-			.attachTexture(GL::Framebuffer::BufferAttachment::Depth, _depth, 0)
-			.mapForDraw({{Shaders::Phong::ColorOutput, GL::Framebuffer::ColorAttachment{0}}});
+	    .attachTexture(GL::Framebuffer::BufferAttachment::Depth, _depth, 0)
+	    .mapForDraw({{Shaders::PhongGL::ColorOutput, GL::Framebuffer::ColorAttachment{0}}});
 	CORRADE_INTERNAL_ASSERT(_fbo.checkStatus(GL::FramebufferTarget::Draw) == GL::Framebuffer::Status::Complete);
 }
 
@@ -103,8 +101,8 @@ void Scene::render(const_handle cam, bool isCamControl)
 	renderScreens(cam, isCamControl);
 
 	_fbo.clearColor(0, f32col4{0.f, 0.f, 0.f, 0.f})
-			.clearDepth(0.f)
-			.bind();
+	    .clearDepth(0.f)
+	    .bind();
 
 	GL::Renderer::setDepthFunction(GL::Renderer::DepthFunction::Greater);
 	renderEntities(cam);
@@ -151,7 +149,7 @@ void Scene::renderEntities(const_handle cam)
 
 	_pbr.setViewProjectionMatrix(cam.get<CameraComponent>().proj *
 	                             cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid())
-			.setCameraPosition(cam.get<TransformComponent>().world_transform().translation());
+	    .setCameraPosition(cam.get<TransformComponent>().world_transform().translation());
 
 	_reg.view<TransformComponent, MeshComponent, PhongMaterialComponent>().each(
 			[this](entt::entity entity,
@@ -160,10 +158,10 @@ void Scene::renderEntities(const_handle cam)
 			       PhongMaterialComponent& material)
 			{
 				_phong.setTransformationMatrix(transform.world_transform().toMatrix())
-						.setNormalMatrix(transform.transform.toMatrix().normalMatrix())
-						.setDiffuseColor(material.diffuse)
-						.setObjectId(entt::to_integral(entity))
-						.draw(mesh.mesh);
+				      .setNormalMatrix(transform.transform.toMatrix().normalMatrix())
+				      .setDiffuseColor(material.diffuse)
+				      .setObjectId(entt::to_integral(entity))
+				      .draw(mesh.mesh);
 			});
 
 	_reg.view<TransformComponent, MeshComponent, PhysicalMaterialComponent>().each(
@@ -173,9 +171,9 @@ void Scene::renderEntities(const_handle cam)
 			       PhysicalMaterialComponent& material)
 			{
 				_pbr.setModelMatrix(transform.world_transform().toMatrix())
-						.bindTextures(&material.albedo, &material.normal, &material.metallic, &material.roughness,
-						              &material.ambientOcclusion)
-						.draw(mesh.mesh);
+				    .bindTextures(&material.albedo, &material.normal, &material.metallic, &material.roughness,
+				                  &material.ambientOcclusion)
+				    .draw(mesh.mesh);
 			});
 
 	GL::Renderer::enable(GL::Renderer::Feature::Blending);
@@ -186,12 +184,12 @@ void Scene::renderEntities(const_handle cam)
 			             ScreenComponent& screen)
 			{
 				_flat.setTransformationProjectionMatrix(
-								cam.get<CameraComponent>().proj *
-								cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid() *
-								transform.world_transform().toMatrix()
-						)
-						.bindTexture(screen.context.color())
-						.draw(mesh.mesh);
+						     cam.get<CameraComponent>().proj *
+						     cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid() *
+						     transform.world_transform().toMatrix()
+				     )
+				     .bindTexture(screen.context.color())
+				     .draw(mesh.mesh);
 			});
 	GL::Renderer::disable(GL::Renderer::Feature::Blending);
 }

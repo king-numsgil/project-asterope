@@ -2,10 +2,10 @@
 #include <Magnum/GL/DefaultFramebuffer.h>
 #include <Magnum/Primitives/UVSphere.h>
 #include <Magnum/MeshTools/Transform.h>
-#include <Magnum/MeshTools/Reference.h>
 #include <Magnum/MeshTools/Compile.h>
 #include <Magnum/Primitives/Plane.h>
 #include <Magnum/Primitives/Cube.h>
+#include <Magnum/MeshTools/Copy.h>
 #include <Magnum/Trade/MeshData.h>
 #include <Magnum/GL/DebugOutput.h>
 #include <Magnum/GL/Renderer.h>
@@ -65,7 +65,7 @@ public:
 				[](GL::Mesh* mesh)
 				{ *mesh = MeshTools::compile(Primitives::uvSphereSolid(24, 24, Primitives::UVSphereFlag::TextureCoordinates)); });
 		_cube.emplace<PhysicalMaterialComponent>("assets/textures/rusted_metal")
-				.loadTextures();
+		     .loadTextures();
 
 		_cam.emplace<CameraComponent>(Scene::createReverseProjectionMatrix(
 				60.0_degf,
@@ -77,29 +77,33 @@ public:
 		_cam.get<TransformComponent>().parent = _camParent;
 
 		_plane.get<TransformComponent>()
-				.set_parent(_camParent)
-				.apply_transform(f32dquat::translation(f32vec3::zAxis(-2.f)));
+		      .set_parent(_camParent)
+		      .apply_transform(f32dquat::translation(f32vec3::zAxis(-2.f)));
 		_plane.emplace<MeshComponent>(
 				[](GL::Mesh* mesh)
 				{ *mesh = MeshTools::compile(Primitives::planeSolid(Primitives::PlaneFlag::TextureCoordinates)); });
 		_plane.emplace<ScreenComponent>("Test Screen", i32vec2{512, 512})
-				.set_function(
-						[this](entt::const_handle entity)
-						{
-							ImGui::Text("Hello World!");
-							ImGui::Text("Toggle Me!");
-							ImGui::SameLine();
-							ImGui::ToggleButton("ToggleTest", &_testToggle);
-							if (_testToggle)
-								ImGui::Text("ACTIVE!");
-							else
-								ImGui::Text("INACTIVE :(");
-						}
-				);
+		      .set_function(
+				      [this](entt::const_handle entity)
+				      {
+					      ImGui::Text("Hello World!");
+					      ImGui::Text("Toggle Me!");
+					      ImGui::SameLine();
+					      ImGui::ToggleButton("ToggleTest", &_testToggle);
+					      if (_testToggle)
+					      {
+						      ImGui::Text("ACTIVE!");
+					      }
+					      else
+					      {
+						      ImGui::Text("INACTIVE :(");
+					      }
+				      }
+		      );
 
 		_scene.phongShader().setLightColor(0, 0xffffff_rgbf)
-				.setLightPosition(0, {0.f, 3.f, 3.4f})
-				.setAmbientColor(0x101010_rgbf);
+		      .setLightPosition(0, {0.f, 3.f, 3.4f, 1.f})
+		      .setAmbientColor(0x101010_rgbf);
 
 		_scene.physicalShader().setLightParameters(0, {0.f, 3.f, 3.4f}, {150.f, 150.f, 150.f});
 
@@ -108,11 +112,11 @@ public:
 		auto earth = _scene.createEntity();
 		earth.emplace<PhongMaterialComponent>(0x275f91_rgbf);
 		earth.get<TransformComponent>()
-				.apply_transform(f32dquat::translation(f32vec3::yAxis(-earthRadius - 1.f)));
+		     .apply_transform(f32dquat::translation(f32vec3::yAxis(-earthRadius - 1.f)));
 		earth.emplace<MeshComponent>(
 				[earthRadius](GL::Mesh* mesh)
 				{
-					auto data = MeshTools::owned(Primitives::uvSphereSolid(30, 30));
+					auto data = MeshTools::copy(Primitives::uvSphereSolid(30, 30));
 					MeshTools::transformPointsInPlace(f32mat4::scaling({earthRadius, earthRadius, earthRadius}),
 					                                  data.mutableAttribute<f32vec3>(Trade::MeshAttribute::Position));
 					*mesh = MeshTools::compile(data);
@@ -122,12 +126,12 @@ public:
 		auto moon = _scene.createEntity();
 		moon.emplace<PhongMaterialComponent>(0xe6ea98_rgbf);
 		moon.get<TransformComponent>()
-				.set_parent(earth)
-				.apply_transform(f32dquat::translation(f32vec3::yAxis(384'400'000.f)));
+		    .set_parent(earth)
+		    .apply_transform(f32dquat::translation(f32vec3::yAxis(384'400'000.f)));
 		moon.emplace<MeshComponent>(
 				[moonRadius](GL::Mesh* mesh)
 				{
-					auto data = MeshTools::owned(Primitives::uvSphereSolid(30, 30));
+					auto data = MeshTools::copy(Primitives::uvSphereSolid(30, 30));
 					MeshTools::transformPointsInPlace(f32mat4::scaling({moonRadius, moonRadius, moonRadius}),
 					                                  data.mutableAttribute<f32vec3>(Trade::MeshAttribute::Position));
 					*mesh = MeshTools::compile(data);
@@ -157,7 +161,8 @@ private:
 				.clearDepthStencil(1.f, 0)
 				.bind();
 		_scene.blitToDefaultFramebuffer();
-		if (!_camControl) _ctx.updateApplicationCursor(*this);
+		if (!_camControl)
+		{ _ctx.updateApplicationCursor(*this); }
 
 		_ctx.newFrame();
 		ImGui::ShowMetricsWindow();
@@ -236,9 +241,13 @@ private:
 			_camYaw -= f32deg{static_cast<f32>(event.relativePosition().x()) * _time.previousFrameDuration() * 3.f};
 
 			if (_camPitch >= 90.0_degf)
+			{
 				_camPitch = 90.0_degf;
+			}
 			if (_camPitch <= -90.0_degf)
+			{
 				_camPitch = -90.0_degf;
+			}
 		}
 		else if (!_ctx.handleMouseMoveEvent(event))
 		{
@@ -264,19 +273,31 @@ private:
 			             (glfwGetKey(window(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ? 2000.f : 2.f);
 
 			if (glfwGetKey(window(), GLFW_KEY_W) == GLFW_PRESS)
+			{
 				cam.apply_transform(f32dquat::translation(-m.backward() * rate));
+			}
 			if (glfwGetKey(window(), GLFW_KEY_S) == GLFW_PRESS)
+			{
 				cam.apply_transform(f32dquat::translation(m.backward() * rate));
+			}
 
 			if (glfwGetKey(window(), GLFW_KEY_D) == GLFW_PRESS)
+			{
 				cam.apply_transform(f32dquat::translation(m.right() * rate));
+			}
 			if (glfwGetKey(window(), GLFW_KEY_A) == GLFW_PRESS)
+			{
 				cam.apply_transform(f32dquat::translation(-m.right() * rate));
+			}
 
 			if (glfwGetKey(window(), GLFW_KEY_SPACE) == GLFW_PRESS)
+			{
 				cam.apply_transform(f32dquat::translation(f32vec3::yAxis(rate)));
+			}
 			if (glfwGetKey(window(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+			{
 				cam.apply_transform(f32dquat::translation(f32vec3::yAxis(-rate)));
+			}
 		}
 	}
 

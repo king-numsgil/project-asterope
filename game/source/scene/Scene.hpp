@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Magnum/GL/Framebuffer.h>
-#include <Magnum/Shaders/Phong.h>
-#include <Magnum/Shaders/Flat.h>
+#include <Magnum/Shaders/PhongGL.h>
+#include <Magnum/Shaders/FlatGL.h>
 #include <Magnum/GL/Texture.h>
 
 #include <entt/entity/registry.hpp>
@@ -16,8 +16,8 @@ class Scene
 	Magnum::GL::Framebuffer _fbo{NoCreate};
 	Magnum::GL::Texture2D _color{NoCreate};
 	Magnum::GL::Texture2D _depth{NoCreate};
-	Magnum::Shaders::Phong _phong{NoCreate};
-	Magnum::Shaders::Flat3D _flat{NoCreate};
+	Magnum::Shaders::PhongGL _phong{NoCreate};
+	Magnum::Shaders::FlatGL3D _flat{NoCreate};
 	PhysicalShader _pbr{NoCreate};
 
 	i32vec2 _size{0, 0};

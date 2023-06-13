@@ -27,44 +27,24 @@ AbstractImContext::AbstractImContext(ImGuiContext& context, ImPlotContext& plotC
                                      i32vec2 const& windowSize,
                                      i32vec2 const& framebufferSize)
 		: _context{&context}, _plotCtx{&plotCtx},
-		  _shader{Shaders::Flat2D::Flag::Textured | Shaders::Flat2D::Flag::VertexColor},
+		  _shader{Shaders::FlatGL2D::Configuration{}
+				          .setFlags(Shaders::FlatGL2D::Flag::Textured | Shaders::FlatGL2D::Flag::VertexColor)},
 		  _size{size}
 {
 	makeCurrent();
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.KeyMap[ImGuiKey_Tab] = ImGuiKey_Tab;
-	io.KeyMap[ImGuiKey_LeftArrow] = ImGuiKey_LeftArrow;
-	io.KeyMap[ImGuiKey_RightArrow] = ImGuiKey_RightArrow;
-	io.KeyMap[ImGuiKey_UpArrow] = ImGuiKey_UpArrow;
-	io.KeyMap[ImGuiKey_DownArrow] = ImGuiKey_DownArrow;
-	io.KeyMap[ImGuiKey_PageUp] = ImGuiKey_PageUp;
-	io.KeyMap[ImGuiKey_PageDown] = ImGuiKey_PageDown;
-	io.KeyMap[ImGuiKey_Home] = ImGuiKey_Home;
-	io.KeyMap[ImGuiKey_End] = ImGuiKey_End;
-	io.KeyMap[ImGuiKey_Delete] = ImGuiKey_Delete;
-	io.KeyMap[ImGuiKey_Backspace] = ImGuiKey_Backspace;
-	io.KeyMap[ImGuiKey_Space] = ImGuiKey_Space;
-	io.KeyMap[ImGuiKey_Enter] = ImGuiKey_Enter;
-	io.KeyMap[ImGuiKey_Escape] = ImGuiKey_Escape;
-	io.KeyMap[ImGuiKey_A] = ImGuiKey_A;
-	io.KeyMap[ImGuiKey_C] = ImGuiKey_C;
-	io.KeyMap[ImGuiKey_V] = ImGuiKey_V;
-	io.KeyMap[ImGuiKey_X] = ImGuiKey_X;
-	io.KeyMap[ImGuiKey_Y] = ImGuiKey_Y;
-	io.KeyMap[ImGuiKey_Z] = ImGuiKey_Z;
-
 	io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 
 	relayout(size, windowSize, framebufferSize);
 
 	_mesh.setPrimitive(GL::MeshPrimitive::Triangles);
 	_mesh.addVertexBuffer(_vertexBuffer, 0,
-	                      Shaders::Flat2D::Position{},
-	                      Shaders::Flat2D::TextureCoordinates{},
-	                      Shaders::Flat2D::Color4{
-			                      Shaders::Flat2D::Color4::DataType::UnsignedByte,
-			                      Shaders::Flat2D::Color4::DataOption::Normalized
+	                      Shaders::FlatGL2D::Position{},
+	                      Shaders::FlatGL2D::TextureCoordinates{},
+	                      Shaders::FlatGL2D::Color4{
+			                      Shaders::FlatGL2D::Color4::DataType::UnsignedByte,
+			                      Shaders::FlatGL2D::Color4::DataOption::Normalized
 	                      }
 	);
 
@@ -162,11 +142,13 @@ void AbstractImContext::relayout(f32vec2 const& size, i32vec2 const& windowSize,
 
 	bool allFontsLoaded = !io.Fonts->Fonts.empty();
 	for (auto& font: io.Fonts->Fonts)
+	{
 		if (!font->IsLoaded())
 		{
 			allFontsLoaded = false;
 			break;
 		}
+	}
 
 	if (_supersamplingRatio != supersamplingRatio || !allFontsLoaded)
 	{
@@ -199,9 +181,9 @@ void AbstractImContext::relayout(f32vec2 const& size, i32vec2 const& windowSize,
 
 		_texture = GL::Texture2D{};
 		_texture.setMagnificationFilter(GL::SamplerFilter::Linear)
-				.setMinificationFilter(GL::SamplerFilter::Linear)
-				.setStorage(1, GL::TextureFormat::RGBA8, image.size())
-				.setSubImage(0, {}, image);
+		        .setMinificationFilter(GL::SamplerFilter::Linear)
+		        .setStorage(1, GL::TextureFormat::RGBA8, image.size())
+		        .setSubImage(0, {}, image);
 
 		io.Fonts->ClearTexData();
 		io.Fonts->SetTexID(reinterpret_cast<ImTextureID>(&_texture));
@@ -221,10 +203,14 @@ void AbstractImContext::newFrame()
 	ImGuiIO& io = ImGui::GetIO();
 	io.DeltaTime = _timeline.previousFrameDuration();
 	if (ImGui::GetFrameCount() != 0)
+	{
 		io.DeltaTime = Math::max(io.DeltaTime, std::numeric_limits<float>::epsilon());
+	}
 
 	for (const i32 buttonId: {0, 1, 2})
+	{
 		io.MouseDown[buttonId] = _mousePressed[buttonId] || _mousePressedInThisFrame[buttonId];
+	}
 
 	ImGui::NewFrame();
 	_mousePressedInThisFrame = {};
@@ -237,7 +223,8 @@ void AbstractImContext::drawFrame()
 
 	ImGuiIO& io = ImGui::GetIO();
 	const f32vec2 fbSize = f32vec2{io.DisplaySize} * f32vec2{io.DisplayFramebufferScale};
-	if (fbSize.product() == 0) return;
+	if (fbSize.product() == 0)
+	{ return; }
 
 	ImDrawData* drawData = ImGui::GetDrawData();
 	CORRADE_INTERNAL_ASSERT(drawData);
@@ -292,85 +279,60 @@ bool AbstractImContext::handleKeyEvent(KeyCode key, bool pressed)
 	switch (key)
 	{
 		case KeyCode::LeftShift:
-		case KeyCode::RightShift:
-			io.KeyShift = pressed;
+		case KeyCode::RightShift:io.KeyShift = pressed;
 			break;
 		case KeyCode::LeftCtrl:
-		case KeyCode::RightCtrl:
-			io.KeyCtrl = pressed;
+		case KeyCode::RightCtrl:io.KeyCtrl = pressed;
 			break;
 		case KeyCode::LeftAlt:
-		case KeyCode::RightAlt:
-			io.KeyAlt = pressed;
+		case KeyCode::RightAlt:io.KeyAlt = pressed;
 			break;
 		case KeyCode::LeftSuper:
-		case KeyCode::RightSuper:
-			io.KeySuper = pressed;
+		case KeyCode::RightSuper:io.KeySuper = pressed;
 			break;
-		case KeyCode::Tab:
-			io.KeysDown[ImGuiKey_Tab] = pressed;
+		case KeyCode::Tab:io.KeysDown[ImGuiKey_Tab] = pressed;
 			break;
-		case KeyCode::Up:
-			io.KeysDown[ImGuiKey_UpArrow] = pressed;
+		case KeyCode::Up:io.KeysDown[ImGuiKey_UpArrow] = pressed;
 			break;
-		case KeyCode::Down:
-			io.KeysDown[ImGuiKey_DownArrow] = pressed;
+		case KeyCode::Down:io.KeysDown[ImGuiKey_DownArrow] = pressed;
 			break;
-		case KeyCode::Left:
-			io.KeysDown[ImGuiKey_LeftArrow] = pressed;
+		case KeyCode::Left:io.KeysDown[ImGuiKey_LeftArrow] = pressed;
 			break;
-		case KeyCode::Right:
-			io.KeysDown[ImGuiKey_RightArrow] = pressed;
+		case KeyCode::Right:io.KeysDown[ImGuiKey_RightArrow] = pressed;
 			break;
-		case KeyCode::Home:
-			io.KeysDown[ImGuiKey_Home] = pressed;
+		case KeyCode::Home:io.KeysDown[ImGuiKey_Home] = pressed;
 			break;
-		case KeyCode::End:
-			io.KeysDown[ImGuiKey_End] = pressed;
+		case KeyCode::End:io.KeysDown[ImGuiKey_End] = pressed;
 			break;
-		case KeyCode::PageUp:
-			io.KeysDown[ImGuiKey_PageUp] = pressed;
+		case KeyCode::PageUp:io.KeysDown[ImGuiKey_PageUp] = pressed;
 			break;
-		case KeyCode::PageDown:
-			io.KeysDown[ImGuiKey_PageDown] = pressed;
+		case KeyCode::PageDown:io.KeysDown[ImGuiKey_PageDown] = pressed;
 			break;
 		case KeyCode::Enter:
-		case KeyCode::NumEnter:
-			io.KeysDown[ImGuiKey_Enter] = pressed;
+		case KeyCode::NumEnter:io.KeysDown[ImGuiKey_Enter] = pressed;
 			break;
-		case KeyCode::Esc:
-			io.KeysDown[ImGuiKey_Escape] = pressed;
+		case KeyCode::Esc:io.KeysDown[ImGuiKey_Escape] = pressed;
 			break;
-		case KeyCode::Space:
-			io.KeysDown[ImGuiKey_Space] = pressed;
+		case KeyCode::Space:io.KeysDown[ImGuiKey_Space] = pressed;
 			break;
-		case KeyCode::Backspace:
-			io.KeysDown[ImGuiKey_Backspace] = pressed;
+		case KeyCode::Backspace:io.KeysDown[ImGuiKey_Backspace] = pressed;
 			break;
-		case KeyCode::Delete:
-			io.KeysDown[ImGuiKey_Delete] = pressed;
+		case KeyCode::Delete:io.KeysDown[ImGuiKey_Delete] = pressed;
 			break;
-		case KeyCode::A:
-			io.KeysDown[ImGuiKey_A] = pressed;
+		case KeyCode::A:io.KeysDown[ImGuiKey_A] = pressed;
 			break;
-		case KeyCode::C:
-			io.KeysDown[ImGuiKey_C] = pressed;
+		case KeyCode::C:io.KeysDown[ImGuiKey_C] = pressed;
 			break;
-		case KeyCode::V:
-			io.KeysDown[ImGuiKey_V] = pressed;
+		case KeyCode::V:io.KeysDown[ImGuiKey_V] = pressed;
 			break;
-		case KeyCode::X:
-			io.KeysDown[ImGuiKey_X] = pressed;
+		case KeyCode::X:io.KeysDown[ImGuiKey_X] = pressed;
 			break;
-		case KeyCode::Y:
-			io.KeysDown[ImGuiKey_Y] = pressed;
+		case KeyCode::Y:io.KeysDown[ImGuiKey_Y] = pressed;
 			break;
-		case KeyCode::Z:
-			io.KeysDown[ImGuiKey_Z] = pressed;
+		case KeyCode::Z:io.KeysDown[ImGuiKey_Z] = pressed;
 			break;
 
-		default:
-			return false;
+		default:return false;
 	}
 
 	return io.WantCaptureKeyboard;
@@ -386,22 +348,19 @@ bool AbstractImContext::handleMouseEvent(MouseButton button, i32vec2 position, b
 	std::size_t buttonId;
 	switch (button)
 	{
-		case MouseButton::Left:
-			buttonId = 0;
+		case MouseButton::Left:buttonId = 0;
 			break;
-		case MouseButton::Right:
-			buttonId = 1;
+		case MouseButton::Right:buttonId = 1;
 			break;
-		case MouseButton::Middle:
-			buttonId = 2;
+		case MouseButton::Middle:buttonId = 2;
 			break;
 
-		default:
-			return false;
+		default:return false;
 	}
 
 	_mousePressed.set(buttonId, pressed);
-	if (pressed) _mousePressedInThisFrame.set(buttonId, true);
+	if (pressed)
+	{ _mousePressedInThisFrame.set(buttonId, true); }
 
 	return io.WantCaptureMouse;
 }

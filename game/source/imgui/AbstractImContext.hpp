@@ -2,7 +2,7 @@
 
 #include <Magnum/Platform/GlfwApplication.h>
 #include <Magnum/GL/AbstractShaderProgram.h>
-#include <Magnum/Shaders/Flat.h>
+#include <Magnum/Shaders/FlatGL.h>
 #include <Magnum/GL/Texture.h>
 #include <Magnum/GL/Buffer.h>
 #include <Magnum/Timeline.h>
@@ -131,12 +131,12 @@ protected:
 
 	ImGuiContext* _context;
 	ImPlotContext* _plotCtx;
-	Magnum::Shaders::Flat2D _shader;
+	Magnum::Shaders::FlatGL2D _shader;
 	Magnum::GL::Texture2D _texture{Magnum::NoCreate};
 	Magnum::GL::Buffer _vertexBuffer{Magnum::GL::Buffer::TargetHint::Array};
 	Magnum::GL::Buffer _indexBuffer{Magnum::GL::Buffer::TargetHint::ElementArray};
 	Magnum::Timeline _timeline;
 	Magnum::GL::Mesh _mesh;
 	f32vec2 _size, _supersamplingRatio, _eventScaling;
-	Magnum::BoolVector3 _mousePressed, _mousePressedInThisFrame;
+	Magnum::BitVector3 _mousePressed, _mousePressedInThisFrame;
 };

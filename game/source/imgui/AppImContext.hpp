@@ -80,26 +80,20 @@ public:
 
 		switch (ImGui::GetMouseCursor())
 		{
-			case ImGuiMouseCursor_TextInput:
-				application.setCursor(Application::Cursor::TextInput);
+			case ImGuiMouseCursor_TextInput: application.setCursor(Application::Cursor::TextInput);
 				return;
-			case ImGuiMouseCursor_ResizeNS:
-				application.setCursor(Application::Cursor::ResizeNS);
+			case ImGuiMouseCursor_ResizeNS: application.setCursor(Application::Cursor::ResizeNS);
 				return;
-			case ImGuiMouseCursor_ResizeEW:
-				application.setCursor(Application::Cursor::ResizeWE);
+			case ImGuiMouseCursor_ResizeEW: application.setCursor(Application::Cursor::ResizeWE);
 				return;
-			case ImGuiMouseCursor_Hand:
-				application.setCursor(Application::Cursor::Hand);
+			case ImGuiMouseCursor_Hand: application.setCursor(Application::Cursor::Hand);
 				return;
-			case ImGuiMouseCursor_None:
-				application.setCursor(Application::Cursor::Hidden);
+			case ImGuiMouseCursor_None: application.setCursor(Application::Cursor::Hidden);
 				return;
 
 				/* For unknown cursors we set Arrow as well */
 			case ImGuiMouseCursor_Arrow:
-			default:
-				application.setCursor(Application::Cursor::Arrow);
+			default: application.setCursor(Application::Cursor::Arrow);
 				return;
 		}
 
