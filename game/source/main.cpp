@@ -103,7 +103,8 @@ public:
 
 		_scene.phongShader().setLightColor(0, 0xffffff_rgbf)
 		      .setLightPosition(0, {0.f, 3.f, 3.4f, 1.f})
-		      .setAmbientColor(0x101010_rgbf);
+			  .setLightRange(0, 2500.f)
+		      .setAmbientColor(0x202020_rgbf);
 
 		_scene.physicalShader().setLightParameters(0, {0.f, 3.f, 3.4f}, {150.f, 150.f, 150.f});
 
