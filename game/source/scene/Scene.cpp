@@ -73,9 +73,10 @@ void Scene::create(i32vec2 const& size, u32 lightCount)
 	GL::Renderer::setClipControl(GL::Renderer::ClipOrigin::LowerLeft, GL::Renderer::ClipDepth::ZeroToOne);
 
 	_size = size;
-	_phong = Shaders::PhongGL{Shaders::PhongGL::Configuration{}.setFlags(Shaders::PhongGL::Flag::ObjectId)};
-	_flat = Shaders::FlatGL3D{
-			Shaders::FlatGL3D::Configuration{}.setFlags(Shaders::FlatGL3D::Flag::Textured | Shaders::FlatGL3D::Flag::AlphaMask)};
+	_phong = Shaders::PhongGL{Shaders::PhongGL::Configuration{}
+			                          .setFlags(Shaders::PhongGL::Flag::ObjectId)};
+	_flat = Shaders::FlatGL3D{Shaders::FlatGL3D::Configuration{}
+			                          .setFlags(Shaders::FlatGL3D::Flag::Textured | Shaders::FlatGL3D::Flag::AlphaMask)};
 	_pbr = PhysicalShader{lightCount};
 
 	_color = GL::Texture2D{};
@@ -144,11 +145,9 @@ void Scene::renderScreens(const_handle cam, bool isCamControl)
 
 void Scene::renderEntities(const_handle cam)
 {
-	_phong.setProjectionMatrix(cam.get<CameraComponent>().proj *
-	                           cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid());
-
-	_pbr.setViewProjectionMatrix(cam.get<CameraComponent>().proj *
-	                             cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid())
+	const f32mat4 view = cam.get<CameraComponent>().proj * cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid();
+	_phong.setProjectionMatrix(view);
+	_pbr.setViewProjectionMatrix(view)
 	    .setCameraPosition(cam.get<TransformComponent>().world_transform().translation());
 
 	_reg.view<TransformComponent, MeshComponent, PhongMaterialComponent>().each(
@@ -168,26 +167,21 @@ void Scene::renderEntities(const_handle cam)
 			[this](entt::entity entity,
 			       TransformComponent& transform,
 			       MeshComponent& mesh,
-			       PhysicalMaterialComponent& material)
+			       PhysicalMaterialComponent& mat)
 			{
 				_pbr.setModelMatrix(transform.world_transform().toMatrix())
-				    .bindTextures(&material.albedo, &material.normal, &material.metallic, &material.roughness,
-				                  &material.ambientOcclusion)
+				    .bindTextures(&mat.albedo, &mat.normal, &mat.metallic, &mat.roughness, &mat.ambientOcclusion)
 				    .draw(mesh.mesh);
 			});
 
 	GL::Renderer::enable(GL::Renderer::Feature::Blending);
 	_reg.view<TransformComponent, MeshComponent, ScreenComponent>().each(
-			[this, &cam](entt::entity entity,
+			[this, &view](entt::entity entity,
 			             TransformComponent& transform,
 			             MeshComponent& mesh,
 			             ScreenComponent& screen)
 			{
-				_flat.setTransformationProjectionMatrix(
-						     cam.get<CameraComponent>().proj *
-						     cam.get<TransformComponent>().world_transform().toMatrix().invertedRigid() *
-						     transform.world_transform().toMatrix()
-				     )
+				_flat.setTransformationProjectionMatrix(view * transform.world_transform().toMatrix())
 				     .bindTexture(screen.context.color())
 				     .draw(mesh.mesh);
 			});
