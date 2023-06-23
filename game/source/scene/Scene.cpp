@@ -1,4 +1,3 @@
-#include <Corrade/PluginManager/PluginManager.h>
 #include <Magnum/Trade/AbstractImporter.h>
 #include <Magnum/GL/DefaultFramebuffer.h>
 #include <Magnum/GL/TextureFormat.h>

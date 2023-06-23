@@ -1,9 +1,9 @@
 #pragma once
 
 #include <entt/entity/handle.hpp>
-#include <utility>
 #include <Magnum/GL/Texture.h>
 #include <Magnum/GL/Mesh.h>
+#include <utility>
 
 #include "Types.hpp"
 

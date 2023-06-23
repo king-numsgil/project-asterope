@@ -4,7 +4,6 @@
 #include <Magnum/MeshTools/Transform.h>
 #include <Magnum/MeshTools/Compile.h>
 #include <Magnum/Primitives/Plane.h>
-#include <Magnum/Primitives/Cube.h>
 #include <Magnum/MeshTools/Copy.h>
 #include <Magnum/Trade/MeshData.h>
 #include <Magnum/GL/DebugOutput.h>
