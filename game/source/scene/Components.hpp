@@ -10,10 +10,9 @@
 struct TransformComponent
 {
 	f32dquat transform{IdentityInit};
-	entt::const_handle parent;
+	entt::const_handle parent{};
 
-	explicit TransformComponent(entt::registry const& registry) : parent{registry, entt::null}
-	{}
+	TransformComponent() = default;
 
 	[[nodiscard]] f32dquat world_transform() const
 	{

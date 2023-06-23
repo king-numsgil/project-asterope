@@ -9,7 +9,7 @@
 
 #include "shaders/PhysicalShader.hpp"
 #include "Components.hpp"
-#include "../Types.hpp"
+#include "Types.hpp"
 
 class Scene
 {

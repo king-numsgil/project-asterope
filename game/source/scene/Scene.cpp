@@ -190,6 +190,6 @@ void Scene::renderEntities(const_handle cam)
 entt::handle Scene::createEntity()
 {
 	auto ret = entt::handle{_reg, _reg.create()};
-	ret.emplace<TransformComponent>(_reg);
+	ret.emplace<TransformComponent>();
 	return ret;
 }
