@@ -17,6 +17,8 @@ add_executable(AsteropeGame
 	source/scene/Scene.hpp
 	source/scene/shaders/PhysicalShader.cpp
 	source/scene/shaders/PhysicalShader.hpp
+	source/scene/gameplay/PlayerShip.cpp
+	source/scene/gameplay/PlayerShip.h
 )
 
 set_target_properties(AsteropeGame

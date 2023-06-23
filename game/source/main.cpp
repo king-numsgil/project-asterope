@@ -3,7 +3,6 @@
 #include <Magnum/Primitives/UVSphere.h>
 #include <Magnum/MeshTools/Transform.h>
 #include <Magnum/MeshTools/Compile.h>
-#include <Magnum/Primitives/Plane.h>
 #include <Magnum/MeshTools/Copy.h>
 #include <Magnum/Trade/MeshData.h>
 #include <Magnum/GL/DebugOutput.h>
@@ -12,6 +11,7 @@
 
 #include "imgui/ScreenImContext.hpp"
 #include "imgui/AppImContext.hpp"
+#include "scene/gameplay/PlayerShip.h"
 #include "scene/Scene.hpp"
 
 using namespace Magnum;
@@ -55,16 +55,16 @@ public:
 		_time.start();
 
 		_scene.create(framebufferSize());
+		_ship.create(_scene);
 		_camParent = _scene.createEntity();
-		_plane = _scene.createEntity();
-		_cube = _scene.createEntity();
+		_rusted_ball = _scene.createEntity();
 		_cam = _scene.createEntity();
 
-		_cube.emplace<MeshComponent>(
+		_rusted_ball.emplace<MeshComponent>(
 				[](GL::Mesh* mesh)
 				{ *mesh = MeshTools::compile(Primitives::uvSphereSolid(24, 24, Primitives::UVSphereFlag::TextureCoordinates)); });
-		_cube.emplace<PhysicalMaterialComponent>("assets/textures/rusted_metal")
-		     .loadTextures();
+		_rusted_ball.emplace<PhysicalMaterialComponent>("assets/textures/rusted_metal")
+		            .loadTextures();
 
 		_cam.emplace<CameraComponent>(Scene::createReverseProjectionMatrix(
 				60.0_degf,
@@ -72,33 +72,10 @@ public:
 				0.1f
 		));
 
-		_camParent.get<TransformComponent>().transform = f32dquat::translation({0.f, 5.f, 5.f});
-		_cam.get<TransformComponent>().parent = _camParent;
-
-		_plane.get<TransformComponent>()
-		      .set_parent(_camParent)
-		      .apply_transform(f32dquat::translation(f32vec3::zAxis(-2.f)));
-		_plane.emplace<MeshComponent>(
-				[](GL::Mesh* mesh)
-				{ *mesh = MeshTools::compile(Primitives::planeSolid(Primitives::PlaneFlag::TextureCoordinates)); });
-		_plane.emplace<ScreenComponent>("Test Screen", i32vec2{512, 512})
-		      .set_function(
-				      [this](entt::const_handle entity)
-				      {
-					      ImGui::Text("Hello World!");
-					      ImGui::Text("Toggle Me!");
-					      ImGui::SameLine();
-					      ImGui::ToggleButton("ToggleTest", &_testToggle);
-					      if (_testToggle)
-					      {
-						      ImGui::Text("ACTIVE!");
-					      }
-					      else
-					      {
-						      ImGui::Text("INACTIVE :(");
-					      }
-				      }
-		      );
+		_camParent.get<TransformComponent>()
+		        .apply_transform(f32dquat::translation({0.f, 5.f, 5.f}))
+				.set_parent(_ship.root());
+		_cam.get<TransformComponent>().set_parent(_camParent);
 
 		_scene.phongShader().setLightColor(0, 0xffffff_rgbf)
 		      .setLightPosition(0, {0.f, 3.f, 3.4f, 1.f})
@@ -146,7 +123,8 @@ private:
 	Timeline _time{};
 
 	Scene _scene{NoCreate};
-	entt::handle _cam, _camParent, _cube, _plane;
+	PlayerShip _ship{NoCreate};
+	entt::handle _cam, _camParent, _rusted_ball;
 
 	f32deg _camPitch{-45.f}, _camYaw{0.f};
 	bool _camControl{false}, _testToggle{false};
@@ -165,8 +143,6 @@ private:
 		{ _ctx.updateApplicationCursor(*this); }
 
 		_ctx.newFrame();
-		ImGui::ShowMetricsWindow();
-
 		renderMainImgui();
 
 		swapBuffers();
