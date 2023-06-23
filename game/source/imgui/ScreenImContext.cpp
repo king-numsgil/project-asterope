@@ -50,7 +50,9 @@ void ScreenImContext::create_resources(i32vec2 const& size)
 	_stencil.setStorage(GL::RenderbufferFormat::StencilIndex8, size);
 
 	_color = GL::Texture2D{};
-	_color.setStorage(1, GL::TextureFormat::RGBA8, size);
+	_color.setStorage(1, GL::TextureFormat::RGBA8, size)
+	      .setMagnificationFilter(GL::SamplerFilter::Linear)
+	      .setMinificationFilter(GL::SamplerFilter::Linear);
 
 	_fb = GL::Framebuffer{{{}, size}};
 	_fb.attachTexture(GL::Framebuffer::ColorAttachment{0}, _color, 0)
